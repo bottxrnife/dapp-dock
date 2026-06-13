@@ -64,10 +64,11 @@ When you change architecture, add screens, wire integrations, fix bugs, or alter
 21. **`src/services/manifest.ts`** — `validateManifest()` gates agent output; enforces component types, plain-English permissions, 2–6 workflow steps, no raw addresses in permissions.
 22. **`src/services/identity.ts`** — pure ENS via viem mainnet (Universal Resolver): resolve/reverse, ENSIP-5 text records, ENSIP-12 avatars, ENSIP-26 agent records; `publishSubname()` assigns `label.<domain>` (live when it already resolves on-chain).
 23. **`src/services/verification.ts`** — World ID Wallet Bridge (encrypt request → deep link World App → poll bridge → verify on Developer Portal). Simulated when no `WORLD_APP_ID`.
-24. **`src/services/execution.ts`** — LI.FI quote/simulate; **real execution** when wallet funded (approve + send + poll `li.quest/v1/status`); unfunded = validated quote + spec timeline timing.
+24. **`src/services/execution.ts`** — LI.FI quote/simulate; **real execution** when wallet funded (approve + send + poll `li.quest/v1/status`); unfunded = validated quote + spec timeline timing. `runFlow` delegates to `composer.ts` when `workflow.composer` is set. All calls go through `ENV.lifiApiUrl`.
+24b. **`src/services/composer.ts`** — **LI.FI Composer**: swap+deposit a user's USDC into a yield vault in ONE composed transaction (a `/quote` whose `toToken` is a vault token → Composer onchain VM). `simulateComposerDeposit` (agent), `runComposerDeposit` (execute, funded → approve LI.FI Diamond + send + poll; unfunded → timeline), `fetchTopUsdcVault` (Earn API discovery, falls back to `DEFAULT_VAULT`).
 25. **`src/services/wallet.ts`** — burner key in `expo-secure-store`; balances on Base/Arbitrum/Optimism/Polygon USDC + native gas.
 26. **`src/services/assistant.ts`** — deterministic template fallback (`generateManifest`) when no Anthropic key.
-27. **`src/services/agent.ts`** — **real LLM agent**: Anthropic Messages API + tool loop. Tools: `get_wallet_overview`, `list_store_dapps`, `resolve_ens_name`, `check_ens_subname`, `simulate_lifi_route`, `draft_dapp_manifest`. **No spend/publish tools** (human confirms those).
+27. **`src/services/agent.ts`** — **real LLM agent**: Anthropic Messages API + tool loop. Tools: `get_wallet_overview`, `list_store_dapps`, `resolve_ens_name`, `check_ens_subname`, `simulate_lifi_route`, `simulate_composer_route`, `draft_dapp_manifest` (accepts a `workflow.composer` target). **No spend/publish tools** (human confirms those).
 
 ### Phase 5 — Screens (expo-router)
 28. `app/index.tsx` — Onboarding; World ID CTA → `verifyHuman()` → `/home`; Explore → `/store`.
@@ -142,7 +143,8 @@ dapp-dock/
 │       ├── manifest.ts           # Schema validation
 │       ├── identity.ts           # ENS via viem (resolve, text records, ENSIP-26 agent records)
 │       ├── verification.ts       # World ID bridge + verify
-│       ├── execution.ts          # LI.FI simulate + execute (runFlow accepts overrides)
+│       ├── execution.ts          # LI.FI simulate + execute (runFlow; delegates to composer.ts)
+│       ├── composer.ts           # LI.FI Composer: swap+deposit to a yield vault in one tx
 │       ├── wallet.ts             # Embedded burner wallet + sendUsdc + exportPrivateKey
 │       ├── onchain.ts            # Loyalty ← ENS text record (pure viem getEnsText read)
 │       ├── loyalty.ts            # Tier ladder + points/pass aggregation helpers
@@ -222,13 +224,13 @@ Tab bar (home, store, profile): center FAB → /scan; Create → /assistant; Pro
 |---|---|---|---|
 | `EXPO_PUBLIC_ANTHROPIC_API_KEY` | `agent.ts` | Claude tool-calling agent | `assistant.ts` template generator; UI shows “template mode” |
 | `EXPO_PUBLIC_WORLD_APP_ID` + `WORLD_ACTION` | `verification.ts` | Wallet Bridge → World App → verify API | Simulated verify (~1.4s) |
-| `EXPO_PUBLIC_LIFI_API_KEY` | `execution.ts` | Higher rate limits on quotes/status | Quotes still work, rate-limited |
+| `EXPO_PUBLIC_LIFI_API_KEY` (+ `LIFI_API_URL`, `LIFI_COMPOSER_URL`) | `execution.ts` + `composer.ts` | Cross-chain USDC routing **and** Composer (swap+deposit to a vault in one tx — `toToken`=vault on the open `/quote` API). Key only raises rate limits | Quotes still work unauthenticated; unfunded = validated route + timeline |
 | `EXPO_PUBLIC_ENS_DOMAIN` | `identity.ts` (publish/resolve) + `onchain.ts` (loyalty) | **Pure ENS via viem** — no third-party subname service. Namespace for dapp/agent identities; resolution, reverse names, ENSIP-5 text records, ENSIP-12 avatars, ENSIP-26 agent records all from L1 via the Universal Resolver. Loyalty read from each user's `dappdock.loyalty` text record | No key needed; loyalty falls back to local SecureStore cache when no record/primary name |
 | `EXPO_PUBLIC_ETH_RPC_URL` | `identity.ts` + `onchain.ts` | Mainnet ENS resolution + loyalty/agent text-record reads | Defaults to publicnode |
 
 **Wallet (no env):** Auto-generated burner on device (expo-secure-store). Fund with USDC + gas on Base/Arbitrum/Optimism/Polygon for real LI.FI execution / `sendUsdc`; unfunded = simulated timeline. `exportPrivateKey()` reveals the key for backup (behind the biometric gate).
 
-**Every function is real-with-fallback (audited 2026-06-13):** no integration throws into the UI when its key is missing or a network call fails — each returns a clearly-labeled simulated result. Only the three sponsor hosts + the Anthropic agent are contacted: an Ethereum RPC (ENS, via the Universal Resolver), `li.quest` (LI.FI + Composer), `bridge.worldcoin.org` / `developer.world.org` (World ID 4.0), `api.anthropic.com`. Do not add other external hosts (no NameStone — ENS is the sponsor track, used directly).
+**Every function is real-with-fallback (audited 2026-06-13):** no integration throws into the UI when its key is missing or a network call fails — each returns a clearly-labeled simulated result. Only the three sponsor hosts + the Anthropic agent are contacted: an Ethereum RPC (ENS, via the Universal Resolver), `li.quest` + `earn.li.fi` (LI.FI + Composer + Earn vault discovery), `bridge.worldcoin.org` / `developer.world.org` (World ID 4.0), `api.anthropic.com`. Do not add other external hosts (no NameStone — ENS is the sponsor track, used directly).
 
 ---
 
@@ -252,6 +254,7 @@ Tab bar (home, store, profile): center FAB → /scan; Create → /assistant; Pro
 | Restaurant order-ahead (`menu`) | merchant treasury name | optional | cart total routed cross-chain |
 | Red packets / lucky money | sender name | **one-claim-per-human** | claim payout (escrow simulated) |
 | Pay-by-ENS (`/pay`) | **resolve `alice.eth`** | — | `sendUsdc` routes USDC |
+| Save / earn (`autosave`) | vault-position identity | optional | **Composer: swap+deposit to a vault in one tx** |
 | Reviews | (authored credential) | **one-review-per-human** (nullifier) | — |
 | Design agent | **ENSIP-25/26 identity (`agent-context`)** | human-backed creator | drafts LI.FI/Composer flows |
 | Publish a dapp | **`label.<domain>` identity + manifest records** | verified creator | — |
@@ -271,7 +274,8 @@ The agent **must not** get tools for spending or publishing. Boundaries are prod
 | `resolve_ens_name` | Mainnet ENS → address |
 | `check_ens_subname` | Availability under `ENS_DOMAIN` |
 | `simulate_lifi_route` | LI.FI quote Arbitrum→Base for amount |
-| `draft_dapp_manifest` | Validates + stores draft; triggers UI card |
+| `simulate_composer_route` | LI.FI Composer deposit (swap+deposit to a vault) for amount |
+| `draft_dapp_manifest` | Validates + stores draft (incl. optional `workflow.composer`); triggers UI card |
 
 **Flow per user message:** push user text → up to 8 Anthropic turns → on `tool_use`, run tools → push `tool_result` → repeat until `end_turn` → surface assistant text + optional draft card.
 
@@ -286,6 +290,8 @@ Canonical example: `design_handoff_dappdock/dapp-manifest.example.json`.
 **Component types:** `amountInput`, `sourceChain`, `recipient`, `memoInput`, `punchCard`, `menu`, `submitButton`.
 
 **Adding a component type — touch all 4:** `src/types.ts` union · `COMPONENT_TYPES` in `manifest.ts` · `draft_dapp_manifest` tool description in `agent.ts` · `SYSTEM_PROMPT` pattern in `agent.ts`. Then render it in `runtime/[ens].tsx`.
+
+**`workflow.composer` (LI.FI Composer save/earn):** `{ vaultToken, vaultChainId, protocol?, vaultLabel? }`. When set, `runFlow` delegates to `composer.runComposerDeposit` — the user's USDC is swapped + deposited into the vault in one composed transaction (no separate recipient). Validated in `manifest.ts`; the agent sets it via `draft_dapp_manifest` after `simulate_composer_route`. Seed example: `autosave.dappdock.eth`.
 
 **`punchCard` (loyalty/rewards):** `{ total, reward, pointsPerDollar }`. Runtime renders the pass (stamp grid + points) above the payment form; each successful run calls `addStamp()` (+1 stamp, `amount × pointsPerDollar` points) and `recordActivity()`. When the card is full the primary CTA flips to a free local redeem flow that calls `redeemReward()` and resets the stamps. Points also feed the `/rewards` hub + marketplace (`spendPoints`). Pair with `requiresWorldId` + `worldPolicy: "one-card-per-human"`.
 

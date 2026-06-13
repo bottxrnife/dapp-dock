@@ -37,6 +37,17 @@ export type DappManifest = {
     flowId: string;
     steps: WorkflowStep[];
     simulated: boolean;
+    /**
+     * Optional LI.FI Composer target. When present the runtime executes the
+     * flow as a single composed transaction (swap/bridge + zap into the vault)
+     * instead of a plain payment — see composer.ts.
+     */
+    composer?: {
+      vaultToken: string;
+      vaultChainId: number;
+      protocol?: string;
+      vaultLabel?: string;
+    };
   };
   trust: {
     ensVerified: boolean;

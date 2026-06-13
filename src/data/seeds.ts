@@ -297,6 +297,61 @@ export const BISTRO_MANIFEST: DappManifest = {
   version: '1.0.0',
 };
 
+/**
+ * USDC Auto-Save — a LI.FI **Composer** dapp. One tap sources the user's USDC
+ * from any chain and swaps + deposits it into a yield vault in a single composed
+ * transaction (`workflow.composer` routes execution through composer.ts). This
+ * is the headline Composer integration: Composer is the execution layer, not a
+ * cosmetic add-on. The agent can also draft these (see agent.ts).
+ */
+export const AUTOSAVE_MANIFEST: DappManifest = {
+  name: 'USDC Auto-Save',
+  ensName: 'autosave.dappdock.eth',
+  creator: 'autosave.creator.eth',
+  description:
+    'Put idle USDC to work: from any chain, one tap swaps and deposits it into a yield vault on Base — bundled into a single transaction by LI.FI Composer.',
+  category: 'Finance',
+  secondaryCategory: 'Agents',
+  components: [
+    // editable amount (no `locked`) so the runtime renders an input
+    { type: 'amountInput', token: 'USDC', default: '25' },
+    { type: 'sourceChain', value: 'any' },
+    { type: 'submitButton', label: 'Deposit & earn yield' },
+  ],
+  outcome: 'You will deposit USDC into a yield vault and start earning.',
+  permissions: {
+    plainEnglish: [
+      'Read your wallet balance',
+      'Swap and deposit your USDC in one transaction via LI.FI Composer',
+      'Hold the vault position in your own wallet',
+    ],
+    spendingCap: '100 USDC',
+    requiresConfirmation: true,
+    requiresWorldId: false,
+  },
+  workflow: {
+    provider: 'LI.FI Composer',
+    flowId: 'flow_autosave',
+    steps: [
+      { id: 'source', label: 'Source your USDC from any chain', detail: 'No bridging for you to manage' },
+      { id: 'compose', label: 'Swap + deposit in one transaction', detail: 'Composed by LI.FI Composer' },
+      { id: 'settle', label: 'Settle your vault position', detail: 'Vault tokens arrive in your wallet' },
+      { id: 'record', label: 'Save your receipt', detail: 'Stored in your activity' },
+    ],
+    simulated: true,
+    // Spark-curated USDC vault on Base (Morpho infra) — matches composer.DEFAULT_VAULT.
+    composer: {
+      vaultToken: '0x7BfA7C4f149E7415b73bdeDfe609237e29CBF34A',
+      vaultChainId: 8453,
+      protocol: 'Morpho',
+      vaultLabel: 'Spark USDC',
+    },
+  },
+  trust: { ensVerified: true, worldVerifiedCreator: true, simulated: true, openSource: true },
+  ensTextRecords: { 'dapp.category': 'Finance', 'dapp.version': '1.0.0', 'lifi.flow': 'flow_autosave' },
+  version: '1.0.0',
+};
+
 /** Points-marketplace catalogue: spend accrued points on per-merchant perks. */
 export type PointsReward = { ens: string; label: string; cost: number; emoji: string };
 
@@ -333,6 +388,17 @@ export const SEED_LISTINGS: DappListing[] = [
     reviews: 486,
     featured: true,
     section: 'humans',
+  },
+  {
+    manifest: AUTOSAVE_MANIFEST,
+    monogram: 'AS',
+    runtimeTitle: 'USDC Auto-Save',
+    oneLiner: 'One tap: swap + deposit to yield via LI.FI Composer.',
+    rating: 4.9,
+    runs: 612,
+    reviews: 73,
+    featured: true,
+    section: 'agents',
   },
   {
     manifest: BISTRO_MANIFEST,

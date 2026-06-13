@@ -9,6 +9,7 @@
  * publishing are deliberately NOT in the toolbelt — humans confirm those.
  */
 import { generateManifest } from './assistant';
+import { simulateComposerDeposit } from './composer';
 import { ENV } from './env';
 import { simulateFlow } from './execution';
 import { resolveAddress } from './identity';
@@ -80,6 +81,16 @@ const TOOLS = [
     },
   },
   {
+    name: 'simulate_composer_route',
+    description:
+      'Simulate a LI.FI Composer deposit: swap + deposit a USD amount of USDC into a yield vault in ONE composed transaction. Returns whether the route is Composer-backed, the destination vault token/symbol, and estimated output. Run this before presenting any save / earn / yield dapp (one that uses workflow.composer).',
+    input_schema: {
+      type: 'object',
+      properties: { amountUsd: { type: 'number' } },
+      required: ['amountUsd'],
+    },
+  },
+  {
     name: 'draft_dapp_manifest',
     description:
       'Create or replace the dapp draft the user will preview, test and publish. The input is validated against the DappDock manifest schema; on success the generated-dapp card appears in the chat. Call this once your design is settled (and re-call it to apply edits).',
@@ -116,6 +127,11 @@ const TOOLS = [
               description: '2–6 steps, each {label, detail} in plain English',
               items: { type: 'object' },
             },
+            composer: {
+              type: 'object',
+              description:
+                'Optional LI.FI Composer target for save / earn / yield dapps: { vaultToken: "0x… vault token address", vaultChainId: number (e.g. 8453 for Base), protocol?, vaultLabel? }. When set, running the dapp swaps + deposits the user\'s USDC into that vault in ONE composed transaction. Call simulate_composer_route first to confirm the route.',
+            },
           },
           required: ['steps'],
         },
@@ -136,6 +152,7 @@ Your skills (each maps to a manifest pattern):
 - Loyalty / rewards (cafés, fast food, shops): punchCard {total, reward, pointsPerDollar} + the payment components; each purchase stamps the card and earns points, a full card redeems the reward for free; requiresWorldId with worldPolicy "one-card-per-human" so stamps can't be farmed.
 - Restaurant ordering: menu {currency, items} + sourceChain("any") + recipient(restaurant treasury) + submitButton; the user builds a cart in-app and the total settles via LI.FI. Pair with a punchCard so each order also earns points. No fixed amountInput — the cart is the amount.
 - Everyday payments (parking, transit top-up, donations / round-up, savings circles): an editable amountInput (locked:false) + sourceChain("any") + recipient + submitButton; always cap the amount. Use requiresWorldId only when one-per-human matters (supporter walls, savings circles, raffles).
+- Save / earn / yield (put idle USDC to work): an editable amountInput + sourceChain("any") + submitButton, and a workflow.composer target { vaultToken, vaultChainId } — LI.FI Composer swaps + deposits the USDC into a yield vault in ONE composed transaction (no separate recipient). Run simulate_composer_route first. Usually no World ID; always cap the amount.
 - Agent tools: small paid tasks, human-backed agents; spending always capped.
 
 Hard product rules (never break):
@@ -147,7 +164,7 @@ Hard product rules (never break):
 
 Working method for a new dapp request:
 1. If the request is missing the essentials (who can use it, where funds land, amount), ask at most one short clarifying question. Otherwise proceed.
-2. Use tools: resolve the treasury ENS name if one was given; check_ens_subname for a short memorable label; simulate_lifi_route for payment dapps.
+2. Use tools: resolve the treasury ENS name if one was given; check_ens_subname for a short memorable label; simulate_lifi_route for payment dapps; simulate_composer_route for save/earn/yield dapps (then set workflow.composer in the draft).
 3. Call draft_dapp_manifest with the complete design. If validation fails, fix and re-call.
 4. Reply with one short sentence telling the user the dapp is ready to review below — the app renders the draft card automatically. Do not paste the manifest JSON into chat.
 
@@ -196,6 +213,13 @@ async function runTool(name: string, input: any, hooks: AgentHooks): Promise<str
       hooks.onActivity('Simulating LI.FI route');
       const result = await simulateFlow(Number(input.amountUsd) || 5);
       useApp.getState().setSimulation(result);
+      return JSON.stringify(result);
+    }
+    case 'simulate_composer_route': {
+      hooks.onActivity('Simulating LI.FI Composer deposit');
+      const result = await simulateComposerDeposit(Number(input.amountUsd) || 25);
+      // record as the active simulation so the draft card reflects a passing route
+      useApp.getState().setSimulation({ passed: result.passed, live: result.live, tool: result.tool });
       return JSON.stringify(result);
     }
     case 'draft_dapp_manifest': {

@@ -21,11 +21,16 @@ export const ENV = {
   // World ID Wallet Bridge (native/mobile connect path).
   worldBridgeUrl: process.env.EXPO_PUBLIC_WORLD_BRIDGE_URL ?? 'https://bridge.worldcoin.org',
 
-  // ── LI.FI Composer ────────────────────────────────────────────────────────
-  // portal.li.fi → API key. The ETHGlobal NY 2026 hackathon endpoint is the
-  // dedicated Composer deployment.
+  // ── LI.FI + Composer ──────────────────────────────────────────────────────
+  // portal.li.fi → API key (optional: the API is open; a key only raises rate
+  // limits). `lifiApiUrl` is the REST base for /quote and /status — the same
+  // endpoints power cross-chain routing AND Composer (set `toToken` to a vault
+  // token and the route comes back through the Composer onchain VM; see
+  // execution.ts + composer.ts). `lifiComposerUrl` is the dedicated ETHGlobal
+  // NY 2026 hackathon Composer SDK host (alpha flashloan ops live only there).
   lifiApiKey: process.env.EXPO_PUBLIC_LIFI_API_KEY ?? '',
   lifiIntegrator: process.env.EXPO_PUBLIC_LIFI_INTEGRATOR ?? 'dappdock',
+  lifiApiUrl: process.env.EXPO_PUBLIC_LIFI_API_URL ?? 'https://li.quest/v1',
   lifiComposerUrl: process.env.EXPO_PUBLIC_LIFI_COMPOSER_URL ?? 'https://ethglobal-composer.li.quest',
 
   // ── ENS ───────────────────────────────────────────────────────────────────

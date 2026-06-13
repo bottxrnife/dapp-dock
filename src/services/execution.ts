@@ -13,6 +13,7 @@
 import { erc20Abi, parseUnits } from 'viem';
 import { base } from 'viem/chains';
 import { DappManifest } from '../types';
+import { runComposerDeposit } from './composer';
 import { ENV } from './env';
 import { resolveAddress } from './identity';
 import { CHAINS, getAccount, getWalletSnapshot, publicClientFor, walletClientFor } from './wallet';
@@ -62,7 +63,7 @@ async function fetchQuote(params: Record<string, string>): Promise<LifiQuote> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 12_000);
   try {
-    const res = await fetch(`https://li.quest/v1/quote?${qs}`, {
+    const res = await fetch(`${ENV.lifiApiUrl}/quote?${qs}`, {
       headers: lifiHeaders(),
       signal: ctrl.signal,
     });
@@ -106,7 +107,7 @@ async function pollLifiStatus(txHash: string, fromChain: number, toChain: number
         fromChain: String(fromChain),
         toChain: String(toChain),
       });
-      const res = await fetch(`https://li.quest/v1/status?${qs}`, { headers: lifiHeaders() });
+      const res = await fetch(`${ENV.lifiApiUrl}/status?${qs}`, { headers: lifiHeaders() });
       if (!res.ok) continue;
       const body = (await res.json()) as { status?: string };
       if (body.status === 'DONE') return;
@@ -128,6 +129,13 @@ export async function runFlow(
   onStep: (step: number) => void,
   overrides?: { amountUsd?: number; recipient?: string }
 ): Promise<ExecutionResult> {
+  // Composer dapps (save/earn) bundle swap+deposit into one tx — delegate to
+  // the Composer execution path. Runtime is unchanged: it still drives the
+  // same 4-step timeline via onStep.
+  if (manifest.workflow.composer) {
+    return runComposerDeposit(manifest, onStep, { amountUsd: overrides?.amountUsd });
+  }
+
   const amountComponent = manifest.components.find((c) => c.type === 'amountInput') as
     | { default: string }
     | undefined;

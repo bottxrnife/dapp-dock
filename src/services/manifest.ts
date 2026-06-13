@@ -77,6 +77,24 @@ export function validateManifest(input: any): ValidationResult {
     errors.push('every workflow step needs a label and a detail line');
   }
 
+  // optional LI.FI Composer target (save/earn dapps): a destination vault token
+  const composerInput = input.workflow?.composer;
+  let composer: DappManifest['workflow']['composer'];
+  if (composerInput) {
+    const vaultToken = String(composerInput.vaultToken ?? '');
+    const vaultChainId = Number(composerInput.vaultChainId);
+    if (!/^0x[a-fA-F0-9]{40}$/.test(vaultToken) || !Number.isInteger(vaultChainId) || vaultChainId <= 0) {
+      errors.push('workflow.composer needs a vaultToken (0x address) and a numeric vaultChainId');
+    } else {
+      composer = {
+        vaultToken,
+        vaultChainId,
+        protocol: composerInput.protocol ? String(composerInput.protocol) : undefined,
+        vaultLabel: composerInput.vaultLabel ? String(composerInput.vaultLabel) : undefined,
+      };
+    }
+  }
+
   if (errors.length) return { ok: false, errors };
 
   const manifest: DappManifest = {
@@ -100,6 +118,7 @@ export function validateManifest(input: any): ValidationResult {
       flowId: `flow_${label}_${Date.now().toString(36)}`,
       steps: steps.map((s: any, i: number) => ({ id: s.id ?? `s${i}`, label: s.label, detail: s.detail })),
       simulated: false, // flipped after a passing simulation
+      ...(composer ? { composer } : {}),
     },
     trust: { ensVerified: true, worldVerifiedCreator: true, simulated: false, openSource: true },
     ensTextRecords: {
