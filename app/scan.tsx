@@ -11,13 +11,13 @@ import { C } from '../src/theme';
 
 /** QRs you can "scan" without a printed code — also the demo path on web. */
 const DEMO_CODES: Array<{ label: string; payload: string }> = [
-  { label: 'Burger counter', payload: 'dappdock://runtime/burgerblock.dappdock.eth' },
-  { label: 'Order at table', payload: 'dappdock://runtime/bistro.dappdock.eth' },
-  { label: 'Café counter', payload: 'dappdock://runtime/beancounter.dappdock.eth' },
-  { label: 'Parking meter', payload: 'dappdock://runtime/parking.dappdock.eth' },
-  { label: 'Restaurant table', payload: 'dappdock://runtime/table12.dappdock.eth' },
-  { label: 'Tip jar', payload: 'dappdock://runtime/tipjar.dappdock.eth' },
-  { label: 'Event pass', payload: 'dappdock://detail/tickets.dappdock.eth' },
+  { label: '💸 Pay a wallet', payload: '0x1231DEB6f5749EF6cE6943a275A1D3E7486F4EaE' },
+  { label: '🧑 Pay alice.eth', payload: 'alice.eth' },
+  { label: '🍽️ Order at table', payload: 'dappdock://runtime/bistro.dappdock.eth' },
+  { label: '🍔 Burger counter', payload: 'dappdock://runtime/burgerblock.dappdock.eth' },
+  { label: '🎟️ Event check-in', payload: 'dappdock://checkin/tickets.dappdock.eth' },
+  { label: '🅿️ Parking meter', payload: 'dappdock://runtime/parking.dappdock.eth' },
+  { label: '🫙 Tip jar', payload: 'dappdock://runtime/tipjar.dappdock.eth' },
 ];
 
 export default function Scan() {
@@ -64,9 +64,9 @@ export default function Scan() {
           <Txt size={15} w={700} color={C.white} center style={{ marginTop: 16 }}>
             Camera access needed
           </Txt>
-          <Txt size={13} color="#B8C6F2" center lh={1.5} style={{ marginTop: 6, maxWidth: 240 }}>
-            Point your camera at a dapp QR code — at a restaurant table, an event door, or a tip jar —
-            and it opens instantly.
+          <Txt size={13} color="#B8C6F2" center lh={1.5} style={{ marginTop: 6, maxWidth: 250 }}>
+            Point at any QR — a wallet to pay, a restaurant table to order, an event door to check in,
+            or any dapp someone built.
           </Txt>
           <Pressable
             onPress={requestPermission}
@@ -108,7 +108,7 @@ export default function Scan() {
             }}
           />
           <Txt size={12.5} w={600} color={C.white} center style={{ marginTop: 14 }}>
-            Point at a dapp QR code
+            Point at any QR — pay, order, check in
           </Txt>
         </View>
       </View>
@@ -132,7 +132,7 @@ export default function Scan() {
               Scan
             </Txt>
             <Txt size={12} w={600} color={C.text2}>
-              QR codes launch dapps instantly
+              One QR, many actions — pay, order, check in
             </Txt>
           </View>
         </View>
