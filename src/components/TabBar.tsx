@@ -1,6 +1,6 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { House, Sparkles, Store, User } from 'lucide-react-native';
+import { House, ScanLine, Sparkles, Store, User } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -54,8 +54,9 @@ export function TabBar({ active }: { active: Tab }) {
               Store
             </Txt>
           </Pressable>
+          {/* Scan — the center action: QR codes in the real world launch dapps */}
           <Pressable
-            onPress={() => router.push('/assistant')}
+            onPress={() => router.push('/scan')}
             style={{ alignItems: 'center', width: 52, marginTop: -26 }}
           >
             <View
@@ -73,9 +74,18 @@ export function TabBar({ active }: { active: Tab }) {
                 elevation: 10,
               }}
             >
-              <Sparkles size={23} color={C.ctaText} strokeWidth={2.4} />
+              <ScanLine size={23} color={C.ctaText} strokeWidth={2.4} />
             </View>
             <Txt size={10.5} w={700} color={C.text3} style={{ marginTop: 4 }}>
+              Scan
+            </Txt>
+          </Pressable>
+          <Pressable
+            onPress={() => router.push('/assistant')}
+            style={{ alignItems: 'center', gap: 3, width: 52 }}
+          >
+            <Sparkles size={20} color={C.text3} strokeWidth={2.4} />
+            <Txt size={10.5} w={700} color={C.text3}>
               Create
             </Txt>
           </Pressable>
