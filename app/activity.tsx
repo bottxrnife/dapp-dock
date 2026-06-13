@@ -128,6 +128,11 @@ export default function Activity() {
                     {labelFor(a.kind)} · {timeAgo(a.ts)}
                     {a.live ? ' · onchain' : ''}
                   </Txt>
+                  {a.note ? (
+                    <Txt size={12} color={C.text2} numberOfLines={1} style={{ marginTop: 1 }}>
+                      {a.note}
+                    </Txt>
+                  ) : null}
                 </View>
                 {right ? (
                   <Txt size={13.5} w={800} color={amountColor}>

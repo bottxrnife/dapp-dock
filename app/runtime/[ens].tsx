@@ -1,4 +1,4 @@
-import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Linking, Pressable, TextInput, View } from 'react-native';
 import { MenuOrder, MenuItem } from '../../src/components/MenuOrder';
@@ -227,7 +227,9 @@ export default function Runtime() {
         amountUsd: isOrder ? cartTotal : amount ? enteredAmount : undefined,
       });
       const paidUsd = payAmount;
-      const note = isOrder ? orderSummary() : undefined;
+      // Carry the (possibly edited) memo onto the receipt for plain payments;
+      // orders summarize their line items instead.
+      const note = isOrder ? orderSummary() : memo ? memoText.trim() || memo.default : undefined;
       if (punch) {
         const earned = Math.round(paidUsd * punch.pointsPerDollar);
         addStamp(manifest.ensName, earned);
@@ -297,6 +299,12 @@ export default function Runtime() {
                 .replace(' and be ', ' and were ');
 
   const timelineSteps = mode === 'redeem' ? redeemSteps : manifest.workflow.steps;
+
+  // A stale /runtime/draft with no draft in the store → back to the assistant
+  // (mirrors preview/publish) rather than silently running the first seed dapp.
+  if (ens === 'draft' && !draft) {
+    return <Redirect href="/assistant" />;
+  }
 
   // Unknown ENS (e.g. a stale deep link) → not-found rather than the wrong dapp.
   if (ens && ens !== 'draft' && !hasListing(ens)) {

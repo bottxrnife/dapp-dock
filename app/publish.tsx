@@ -51,8 +51,14 @@ export default function Publish() {
 
   if (!draft) return <Redirect href="/assistant" />;
 
+  const outOfCredits = builderCredits <= 0;
+
   const publish = async () => {
     if (publishing) return;
+    if (outOfCredits) {
+      Alert.alert('No builder credits left', 'You’ve used all 3 builder credits for now.');
+      return;
+    }
     setPublishing(true);
     try {
       const result = await publishSubname(draft);
@@ -106,15 +112,15 @@ export default function Publish() {
         />
         <CheckRow
           title="Store listing ready"
-          sub={`${draft.category}${draft.secondaryCategory ? ' / ' + draft.secondaryCategory : ''} · ${4 - builderCredits} of 3 builder credits`}
+          sub={`${draft.category}${draft.secondaryCategory ? ' / ' + draft.secondaryCategory : ''} · ${builderCredits} of 3 builder credits left`}
         />
       </View>
 
       <View style={{ flex: 1 }} />
       <PrimaryButton
-        label={publishing ? 'Publishing…' : 'Publish to DappDock'}
+        label={outOfCredits ? 'No builder credits left' : publishing ? 'Publishing…' : 'Publish to DappDock'}
         onPress={publish}
-        style={{ marginTop: 16 }}
+        style={{ marginTop: 16, opacity: outOfCredits ? 0.5 : 1 }}
       />
       {!verified && (
         <Txt size={12} color={C.text3} center style={{ marginTop: 10 }}>

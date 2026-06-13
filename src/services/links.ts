@@ -6,6 +6,7 @@
  *   - dappdock://detail|runtime|redpacket/<seg>  → that screen
  *   - dappdock://pay?to=|?ens=|/<who>            → Pay (pre-filled recipient)
  *   - dappdock://checkin/<dappEns>               → run that dapp (check-in / interaction)
+ *   - dappdock://order/<id>                      → reopen that order's dapp (pickup QR)
  *   - a raw EVM address (0x…)                    → Pay that wallet
  *   - a bare ENS: a store dapp opens its page; anyone else → Pay that person
  * Reused by the in-app Scan screen and the share-a-dapp QR generator.
@@ -35,6 +36,16 @@ export function routeForPayload(data: string): ResolvedRoute | null {
   if (checkin) {
     const seg = checkin[1].toLowerCase();
     return { path: `/runtime/${seg}`, known: isDapp(seg) };
+  }
+
+  // Pickup QR: dappdock://order/<id> → reopen that order's dapp (its History tab
+  // shows the pickup QR). An id we don't hold locally (e.g. scanned on another
+  // device) falls back to the receipts feed instead of erroring.
+  const order = raw.match(/^dappdock:\/\/order\/([a-z0-9]+)/i);
+  if (order) {
+    const id = order[1].toUpperCase();
+    const found = useApp.getState().orders.find((o) => o.id === id);
+    return found ? { path: `/runtime/${found.ens}`, known: true } : { path: '/activity', known: true };
   }
 
   // detail | runtime | redpacket
