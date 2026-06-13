@@ -63,7 +63,7 @@ cd server/agentkit && npm install && AGENT_PAYTO=0xYourTreasury npm run server  
 
 ## Architecture
 
-- `app/` — expo-router screens: onboarding, home, store, search, detail, runtime, assistant (Chat/Flow), preview, publish, success, profile, **rewards, activity, wallet, pay, redpacket/new, redpacket/[id]**.
+- `app/` — expo-router screens: onboarding, home, store, search, detail, runtime, assistant (Chat/Flow), preview, publish, success, profile, **rewards, activity, wallet, pay, redpacket/new, redpacket/[id]**. Home is a **customizable** shortcut grid (add/remove any action or dapp); `menu` dapps (e.g. Corner Bistro) render a tabbed **Order / Rewards / History** mini-app (`RestaurantApp`, points-only) with a **pickup QR**; **Scan** handles any QR (pay a wallet, order, check in, open a dapp). One persistent tab bar (no flash) and a smooth light/dark crossfade.
 - `src/services/`
   - `agent.ts` — the LLM agent loop (Anthropic Messages API + toolbelt; drafting/simulating only — spending and publishing always require human confirmation).
   - `manifest.ts` — schema validation gate; the runtime only renders validated manifests.
