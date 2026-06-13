@@ -13,9 +13,14 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BackButton, FadeUp, IconTile, Pulse, Txt, TypingDots } from '../src/components/ui';
 import { hasAgentCreds, runAgentTurn } from '../src/services/agent';
+import { ENV } from '../src/services/env';
+import { AgentProfile, getAgentProfile } from '../src/services/identity';
 import { useApp } from '../src/state/store';
 import { DappManifest } from '../src/types';
 import { bgWithAlpha, C } from '../src/theme';
+
+/** The design agent's ENS identity (ENSIP-25/26). Resolved live, never hard-coded. */
+const AGENT_ENS = `assistant.agent.${ENV.ensDomain}`;
 
 const PROMPT_CHIPS = [
   'Collect payments',
@@ -131,6 +136,15 @@ export default function Assistant() {
   const { messages, agentBusy, apiHistory, draft, simulation, pushMessage, setAgentBusy, setDraft } =
     useApp();
 
+  // ENSIP-26: resolve the agent's on-chain identity (address + agent-context).
+  // Real ENS read via the Universal Resolver — drives the verified badge below.
+  const [agentId, setAgentId] = useState<AgentProfile | null>(null);
+  useEffect(() => {
+    getAgentProfile(AGENT_ENS)
+      .then(setAgentId)
+      .catch(() => {});
+  }, []);
+
   useEffect(() => {
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 60);
   }, [messages.length, agentBusy]);
@@ -186,8 +200,9 @@ export default function Assistant() {
               <Txt size={16} w={800}>
                 Create assistant
               </Txt>
-              <Txt size={12} w={600} color={C.blueLink}>
-                assistant.agent.dappdock.eth · human-backed{hasAgentCreds() ? '' : ' · template mode'}
+              <Txt size={12} w={600} color={C.blueLink} numberOfLines={1}>
+                {AGENT_ENS} · {agentId?.verified ? 'verified on ENS' : 'human-backed'}
+                {hasAgentCreds() ? '' : ' · template mode'}
               </Txt>
             </View>
           </View>
