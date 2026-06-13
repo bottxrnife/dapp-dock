@@ -1,6 +1,7 @@
 "use client";
 
 import { Pill } from "@/components/ui";
+import { VerifyButton } from "@/components/VerifyButton";
 import type { DappManifest, ManifestComponent } from "@/lib/types";
 import { useMemo, useState } from "react";
 
@@ -15,6 +16,7 @@ export function ManifestRunner({ manifest }: { manifest: DappManifest }) {
   );
   const [cart, setCart] = useState<Record<string, number>>({});
   const [step, setStep] = useState<number>(-1); // -1 idle, 0..n running, n = done
+  const [verified, setVerified] = useState(!manifest.permissions.requiresWorldId);
   const menu = manifest.components.find((c) => c.type === "menu") as
     | Extract<ManifestComponent, { type: "menu" }>
     | undefined;
@@ -121,7 +123,10 @@ export function ManifestRunner({ manifest }: { manifest: DappManifest }) {
       })}
 
       {/* run / timeline / done */}
-      {step === -1 && (
+      {step === -1 && !verified && (
+        <VerifyButton signal={manifest.ensName} onVerified={() => setVerified(true)} />
+      )}
+      {step === -1 && verified && (
         <button
           onClick={run}
           disabled={total <= 0 && !!(menu || amountComp)}
