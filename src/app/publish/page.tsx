@@ -4,9 +4,13 @@ import { Button, Card, Pill } from "@/components/ui";
 import type { DappManifest } from "@/lib/types";
 import { useEffect, useState } from "react";
 
+type PublishResult = { ensName: string; blobId: string | null; walrusUrl: string | null; storageError?: string };
+
 export default function PublishPage() {
   const [draft, setDraft] = useState<DappManifest | null>(null);
-  const [published, setPublished] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<PublishResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const raw = sessionStorage.getItem("forge.draft");
@@ -16,6 +20,26 @@ export default function PublishPage() {
       } catch {}
     }
   }, []);
+
+  const publish = async () => {
+    if (!draft) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/publish", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ manifest: draft, creator: draft.creator }),
+      });
+      const data = await res.json();
+      if (!res.ok) setError(data.error ?? "Publish failed");
+      else setResult(data);
+    } catch (e) {
+      setError(String(e));
+    } finally {
+      setBusy(false);
+    }
+  };
 
   if (!draft) {
     return (
@@ -60,28 +84,53 @@ export default function PublishPage() {
         </ul>
       </Card>
 
-      {published ? (
-        <Card className="!bg-success-bg text-center">
-          <p className="text-lg font-extrabold text-success">Published</p>
-          <p className="mt-1 text-sm text-success/80">
-            Next phase wires the real ENS subname mint + Walrus blob write.
-          </p>
-          <div className="mt-3">
+      {result ? (
+        <Card className="!bg-success-bg">
+          <p className="text-center text-lg font-extrabold text-success">Published</p>
+          <ul className="mt-3 flex flex-col gap-2 text-sm">
+            <li className="flex justify-between gap-2">
+              <span className="text-success/70">ENS name</span>
+              <span className="font-semibold text-success">{result.ensName}</span>
+            </li>
+            <li className="flex justify-between gap-2">
+              <span className="text-success/70">Walrus blob</span>
+              <span className="truncate font-semibold text-success">
+                {result.blobId ? `${result.blobId.slice(0, 14)}…` : "unavailable"}
+              </span>
+            </li>
+          </ul>
+          {result.walrusUrl && (
+            <a
+              href={result.walrusUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 block text-center text-xs text-success/80 underline"
+            >
+              View manifest on Walrus
+            </a>
+          )}
+          {result.storageError && (
+            <p className="mt-2 text-center text-xs text-warn">Walrus unavailable — recorded locally.</p>
+          )}
+          <div className="mt-3 flex justify-center gap-2">
             <Button href="/catalog" variant="soft">
               View catalog
             </Button>
+            <Button href={`/app/${encodeURIComponent(result.ensName)}`}>Open app</Button>
           </div>
         </Card>
       ) : (
         <button
-          onClick={() => setPublished(true)}
-          className="rounded-2xl bg-cta px-5 py-3.5 text-[15px] font-bold text-cta-text"
+          onClick={publish}
+          disabled={busy}
+          className="rounded-2xl bg-cta px-5 py-3.5 text-[15px] font-bold text-cta-text disabled:opacity-50"
         >
-          Confirm publish
+          {busy ? "Publishing…" : "Confirm publish"}
         </button>
       )}
+      {error && <p className="text-center text-xs font-semibold text-warn">{error}</p>}
       <p className="text-center text-xs text-faint">
-        Publishing mints {draft.ensName} and stores the manifest on Walrus (wired next).
+        Publishing writes the manifest to Walrus and records {draft.ensName} (ENS subname mint next).
       </p>
     </main>
   );
