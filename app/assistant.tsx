@@ -13,6 +13,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BackButton, FadeUp, IconTile, Pulse, Txt, TypingDots } from '../src/components/ui';
 import { hasAgentCreds, runAgentTurn } from '../src/services/agent';
+import { LIFI_DIAMOND } from '../src/services/composer';
 import { ENV } from '../src/services/env';
 import { AgentProfile, getAgentProfile } from '../src/services/identity';
 import { useApp } from '../src/state/store';
@@ -21,6 +22,80 @@ import { bgWithAlpha, C } from '../src/theme';
 
 /** The design agent's ENS identity (ENSIP-25/26). Resolved live, never hard-coded. */
 const AGENT_ENS = `assistant.agent.${ENV.ensDomain}`;
+
+const CHAIN_NAMES: Record<number, string> = {
+  1: 'Ethereum',
+  10: 'Optimism',
+  137: 'Polygon',
+  8453: 'Base',
+  42161: 'Arbitrum',
+};
+
+/**
+ * Composer flow inspector — visualizes how LI.FI Composer bundles the drafted
+ * dapp's swap + deposit into a single transaction (the destination vault, the
+ * op sequence, and the one execution contract). A small Composer dev/debug tool
+ * surfaced right in the Flow tab.
+ */
+function ComposerInspector({
+  composer,
+  tool,
+}: {
+  composer: NonNullable<DappManifest['workflow']['composer']>;
+  tool?: string;
+}) {
+  const short = (a: string) => `${a.slice(0, 6)}…${a.slice(-4)}`;
+  const chain = CHAIN_NAMES[composer.vaultChainId] ?? `chain ${composer.vaultChainId}`;
+  const ops = [
+    { k: 'swap', label: 'Swap to USDC', detail: 'From any input token' },
+    { k: 'bridge', label: `Bridge to ${chain}`, detail: 'Only if funds start elsewhere' },
+    { k: 'deposit', label: `Deposit into ${composer.vaultLabel ?? 'vault'}`, detail: composer.protocol ? `${composer.protocol} vault` : 'yield vault' },
+  ];
+  const kv = (k: string, v: string) => (
+    <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 10 }}>
+      <Txt size={11.5} color="#9FB0DA">{k}</Txt>
+      <Txt size={11.5} w={600} color={C.white} numberOfLines={1} style={{ flexShrink: 1 }}>{v}</Txt>
+    </View>
+  );
+  return (
+    <View style={{ backgroundColor: C.inkPanel, borderRadius: 18, padding: 16, marginTop: 12 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+        <Txt size={11} w={700} color="#B8C6F2" ls={0.06} style={{ textTransform: 'uppercase' }}>
+          Composer · {ops.length} ops
+        </Txt>
+        <View style={{ backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 999, paddingHorizontal: 10, paddingVertical: 5 }}>
+          <Txt size={11} w={700} color={C.white}>
+            1 transaction
+          </Txt>
+        </View>
+      </View>
+      <View style={{ marginTop: 12, gap: 9 }}>
+        {ops.map((op, i) => (
+          <View key={op.k} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+            <View style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: 'rgba(255,255,255,0.12)', alignItems: 'center', justifyContent: 'center' }}>
+              <Txt size={11} w={700} color={C.white}>
+                {i + 1}
+              </Txt>
+            </View>
+            <View style={{ flex: 1 }}>
+              <Txt size={13.5} w={700} color={C.white}>
+                {op.label}
+              </Txt>
+              <Txt size={11.5} color="#9FB0DA">
+                {op.detail}
+              </Txt>
+            </View>
+          </View>
+        ))}
+      </View>
+      <View style={{ borderTopWidth: 1, borderTopColor: 'rgba(255,255,255,0.1)', marginTop: 12, paddingTop: 10, gap: 5 }}>
+        {kv('Execution', `LI.FI Diamond ${short(LIFI_DIAMOND)}`)}
+        {kv('Vault', `${short(composer.vaultToken)} · ${chain}`)}
+        {tool ? kv('Routed via', tool) : null}
+      </View>
+    </View>
+  );
+}
 
 const PROMPT_CHIPS = [
   'Collect payments',
@@ -421,6 +496,9 @@ export default function Assistant() {
                     </Txt>
                   ) : null}
                 </Txt>
+                {draft.workflow.composer && (
+                  <ComposerInspector composer={draft.workflow.composer} tool={simulation?.tool} />
+                )}
                 <View
                   style={{
                     backgroundColor: C.surface,

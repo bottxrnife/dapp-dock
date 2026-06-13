@@ -435,6 +435,45 @@ export default function Runtime() {
             )}
           </View>
 
+          {manifest.workflow.composer && (
+            <View
+              style={{
+                backgroundColor: C.inkPanel,
+                borderRadius: 18,
+                paddingVertical: 13,
+                paddingHorizontal: 16,
+                marginTop: 10,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 11,
+              }}
+            >
+              <View
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: 15,
+                  backgroundColor: 'rgba(255,255,255,0.12)',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Txt size={14} color={C.white}>
+                  ⚡
+                </Txt>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Txt size={13} w={700} color={C.white}>
+                  Earns yield in {manifest.workflow.composer.vaultLabel ?? 'a vault'}
+                  {manifest.workflow.composer.protocol ? ` · ${manifest.workflow.composer.protocol}` : ''}
+                </Txt>
+                <Txt size={11.5} color="#9FB0DA" style={{ marginTop: 1 }}>
+                  Swap + deposit bundled into one transaction by LI.FI Composer
+                </Txt>
+              </View>
+            </View>
+          )}
+
           <View
             style={{
               backgroundColor: C.blueSoft,
