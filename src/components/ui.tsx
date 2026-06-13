@@ -1,7 +1,8 @@
-import React, { PropsWithChildren, useEffect, useRef } from 'react';
+import React, { PropsWithChildren, useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
+  GestureResponderEvent,
   Pressable,
   ScrollView,
   StyleProp,
@@ -155,6 +156,144 @@ export function TypingDots() {
   );
 }
 
+/**
+ * Tactile press feedback: scale down (+ slight dim) on press-in, spring back on
+ * release. Returns the animated transform + the handlers to spread onto a
+ * Pressable. Native-driven, so it's cheap and never blocks JS.
+ */
+export function usePressScale(scaleTo = 0.96) {
+  const v = useRef(new Animated.Value(1)).current;
+  const animate = (to: number) =>
+    Animated.spring(v, { toValue: to, useNativeDriver: true, speed: 40, bounciness: 6 }).start();
+  return {
+    scale: v,
+    onPressIn: () => animate(scaleTo),
+    onPressOut: () => animate(1),
+  };
+}
+
+/**
+ * Pressable with built-in press-scale. `style` applies to the animated inner
+ * view so layout is unchanged. Use for any tappable card/tile.
+ */
+export function PressableScale({
+  children,
+  onPress,
+  style,
+  scaleTo = 0.96,
+  disabled,
+  testID,
+  hitSlop,
+}: PropsWithChildren<{
+  onPress?: (e: GestureResponderEvent) => void;
+  style?: StyleProp<ViewStyle>;
+  scaleTo?: number;
+  disabled?: boolean;
+  testID?: string;
+  hitSlop?: number;
+}>) {
+  const press = usePressScale(scaleTo);
+  return (
+    <Pressable
+      onPress={onPress}
+      onPressIn={press.onPressIn}
+      onPressOut={press.onPressOut}
+      disabled={disabled}
+      testID={testID}
+      hitSlop={hitSlop}
+    >
+      <Animated.View style={[style, { transform: [{ scale: press.scale }] }]}>{children}</Animated.View>
+    </Pressable>
+  );
+}
+
+/**
+ * Number that animates from its previous value to the next over `duration`.
+ * Used for the wallet balance and loyalty points so figures "tick" up instead
+ * of snapping. `format` controls the rendered string (default 2dp / thousands).
+ */
+export function CountUp({
+  value,
+  size = 14,
+  w = 400,
+  color = C.text,
+  duration = 750,
+  format,
+  prefix = '',
+  suffix = '',
+  style,
+}: {
+  value: number;
+  size?: number;
+  w?: 400 | 500 | 600 | 700 | 800;
+  color?: string;
+  duration?: number;
+  format?: (n: number) => string;
+  prefix?: string;
+  suffix?: string;
+  style?: StyleProp<TextStyle>;
+}) {
+  const v = useRef(new Animated.Value(value)).current;
+  const [display, setDisplay] = useState(value);
+  useEffect(() => {
+    const id = v.addListener(({ value: x }) => setDisplay(x));
+    Animated.timing(v, {
+      toValue: value,
+      duration,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: false,
+    }).start();
+    return () => v.removeListener(id);
+  }, [value, duration, v]);
+  const text = format ? format(display) : display.toFixed(0);
+  return (
+    <Txt size={size} w={w} color={color} style={style}>
+      {prefix}
+      {text}
+      {suffix}
+    </Txt>
+  );
+}
+
+/**
+ * Success checkmark that pops in (spring scale + fade) — for "Done." / reward
+ * reveal moments. Renders the ✓ glyph inside a colored disc.
+ */
+export function SuccessCheck({
+  size = 74,
+  bg = C.successBg,
+  color = C.success,
+  glyph = '✓',
+}: {
+  size?: number;
+  bg?: string;
+  color?: string;
+  glyph?: string;
+}) {
+  const v = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.spring(v, { toValue: 1, useNativeDriver: true, speed: 12, bounciness: 11 }).start();
+  }, [v]);
+  return (
+    <Animated.View
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        backgroundColor: bg,
+        alignItems: 'center',
+        justifyContent: 'center',
+        opacity: v,
+        transform: [{ scale: v }],
+      }}
+    >
+      <Txt size={size * 0.4} w={700} color={color}>
+        {glyph}
+      </Txt>
+    </Animated.View>
+  );
+}
+
 export function Chip({
   label,
   bg,
@@ -181,7 +320,7 @@ export function Chip({
       </Txt>
     </View>
   );
-  return onPress ? <Pressable onPress={onPress}>{inner}</Pressable> : inner;
+  return onPress ? <PressableScale onPress={onPress}>{inner}</PressableScale> : inner;
 }
 
 /** Two-letter monogram on a soft-blue tile — the default dapp icon. */
@@ -263,9 +402,10 @@ export function SearchPill({
   testID?: string;
 }) {
   return (
-    <Pressable
+    <PressableScale
       onPress={onPress}
       testID={testID}
+      scaleTo={0.98}
       style={{
         backgroundColor: C.surface,
         borderRadius: 999,
@@ -280,7 +420,7 @@ export function SearchPill({
       <Txt size={14.5} color={C.text3}>
         {placeholder}
       </Txt>
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -315,27 +455,34 @@ export function PrimaryButton({
   leading?: React.ReactNode;
   testID?: string;
 }) {
+  const press = usePressScale(0.97);
   return (
     <Pressable
       onPress={onPress}
+      onPressIn={press.onPressIn}
+      onPressOut={press.onPressOut}
       testID={testID}
-      style={[
-        {
-          backgroundColor: C.cta,
-          borderRadius: 16,
-          padding: 17,
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexDirection: 'row',
-          gap: 9,
-        },
-        style,
-      ]}
     >
-      {leading}
-      <Txt size={16} w={700} color={C.ctaText}>
-        {label}
-      </Txt>
+      <Animated.View
+        style={[
+          {
+            backgroundColor: C.cta,
+            borderRadius: 16,
+            padding: 17,
+            alignItems: 'center',
+            justifyContent: 'center',
+            flexDirection: 'row',
+            gap: 9,
+          },
+          style,
+          { transform: [{ scale: press.scale }] },
+        ]}
+      >
+        {leading}
+        <Txt size={16} w={700} color={C.ctaText}>
+          {label}
+        </Txt>
+      </Animated.View>
     </Pressable>
   );
 }
@@ -421,7 +568,13 @@ export function ListRow({
       {right}
     </View>
   );
-  return onPress ? <Pressable onPress={onPress}>{body}</Pressable> : body;
+  return onPress ? (
+    <PressableScale onPress={onPress} scaleTo={0.98}>
+      {body}
+    </PressableScale>
+  ) : (
+    body
+  );
 }
 
 export function OpenPill() {

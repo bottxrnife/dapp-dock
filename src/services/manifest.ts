@@ -45,17 +45,36 @@ export function validateManifest(input: any): ValidationResult {
   // per-type shape — the runtime reads these fields directly, so guard them here
   for (const c of components) {
     if (c?.type === 'punchCard') {
-      if (typeof c.total !== 'number' || c.total <= 0 || !c.reward || typeof c.pointsPerDollar !== 'number') {
-        errors.push('punchCard needs a positive total, a reward, and a numeric pointsPerDollar');
+      if (
+        typeof c.total !== 'number' ||
+        c.total <= 0 ||
+        !c.reward ||
+        typeof c.pointsPerDollar !== 'number' ||
+        !Number.isFinite(c.pointsPerDollar) ||
+        c.pointsPerDollar < 0
+      ) {
+        errors.push('punchCard needs a positive total, a reward, and a non-negative pointsPerDollar');
       }
     }
     if (c?.type === 'menu') {
       const items = Array.isArray(c.items) ? c.items : [];
       if (items.length === 0) errors.push('menu must list at least one item');
-      else if (items.some((it: any) => !it?.id || !it?.name || typeof it?.priceUsd !== 'number')) {
-        errors.push('every menu item needs an id, a name, and a numeric priceUsd');
+      else if (
+        items.some(
+          (it: any) =>
+            !it?.id ||
+            !it?.name ||
+            typeof it?.priceUsd !== 'number' ||
+            !Number.isFinite(it.priceUsd) ||
+            it.priceUsd < 0
+        )
+      ) {
+        errors.push('every menu item needs an id, a name, and a finite non-negative priceUsd');
       } else if (new Set(items.map((it: any) => it.id)).size !== items.length) {
         errors.push('menu item ids must be unique');
+      }
+      if (c.pointsPerDollar != null && (!Number.isFinite(c.pointsPerDollar) || c.pointsPerDollar < 0)) {
+        errors.push('menu pointsPerDollar must be a non-negative number');
       }
     }
   }

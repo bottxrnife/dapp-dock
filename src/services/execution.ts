@@ -169,7 +169,7 @@ export async function runFlow(
   const chainInfo = CHAINS.find((c) => c.chain.id === funded.chainId)!;
   const publicClient = publicClientFor(funded.chainId);
   const walletClient = walletClientFor(funded.chainId, account);
-  const amountRaw = parseUnits(String(amount), 6);
+  const amountRaw = parseUnits(amount.toFixed(6), 6); // USDC 6dp — clamp precision
 
   if (funded.chainId === TREASURY_CHAIN.id) {
     // Already on the treasury chain — a direct USDC transfer settles it.

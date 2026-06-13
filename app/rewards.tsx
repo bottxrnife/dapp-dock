@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { ChevronRight, Sparkles } from 'lucide-react-native';
 import React from 'react';
 import { Alert, Pressable, View } from 'react-native';
-import { BackButton, Chip, DappAvatar, Screen, SectionHeader, Txt } from '../src/components/ui';
+import { BackButton, Chip, CountUp, DappAvatar, Screen, SectionHeader, Txt } from '../src/components/ui';
 import { POINTS_REWARDS, PointsReward } from '../src/data/seeds';
 import { activePasses, tierFor, totalPoints } from '../src/services/loyalty';
 import { useApp } from '../src/state/store';
@@ -67,9 +67,14 @@ export default function Rewards() {
             <Txt size={11} w={700} color="#B8C6F2" ls={0.06} style={{ textTransform: 'uppercase' }}>
               Total points
             </Txt>
-            <Txt size={30} w={800} color={C.white} style={{ marginTop: 3 }}>
-              {total.toLocaleString()}
-            </Txt>
+            <CountUp
+              value={total}
+              format={(n) => Math.round(n).toLocaleString()}
+              size={30}
+              w={800}
+              color={C.white}
+              style={{ marginTop: 3 }}
+            />
           </View>
           <View
             style={{

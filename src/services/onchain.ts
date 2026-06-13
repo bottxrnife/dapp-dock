@@ -35,7 +35,23 @@ export async function readLoyalty(address: string): Promise<LoyaltyMap | null> {
     const raw = await getTextRecord(name, LOYALTY_RECORD_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === 'object' ? (parsed as LoyaltyMap) : null;
+    if (!parsed || typeof parsed !== 'object') return null;
+    // Keep only well-formed records so a malformed/legacy value can't poison the
+    // store (e.g. `{ ens: 5 }` would make addStamp's `prev.punches + 1` → NaN).
+    const clean: LoyaltyMap = {};
+    for (const [k, v] of Object.entries(parsed as Record<string, unknown>)) {
+      const r = v as Partial<LoyaltyRecord> | null;
+      if (
+        r &&
+        typeof r === 'object' &&
+        typeof r.punches === 'number' &&
+        typeof r.points === 'number' &&
+        typeof r.redeemed === 'number'
+      ) {
+        clean[k] = { punches: r.punches, points: r.points, redeemed: r.redeemed };
+      }
+    }
+    return Object.keys(clean).length ? clean : null;
   } catch {
     return null;
   }

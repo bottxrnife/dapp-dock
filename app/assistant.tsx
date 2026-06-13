@@ -15,7 +15,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TABBAR_CLEARANCE } from '../src/components/TabBar';
 import { BackButton, DappAvatar, FadeUp, Pulse, Txt, TypingDots } from '../src/components/ui';
-import { hasAgentCreds, runAgentTurn } from '../src/services/agent';
+import { hasAgentCreds, hasDirectAnthropicKey, runAgentTurn } from '../src/services/agent';
 import { LIFI_DIAMOND } from '../src/services/composer';
 import { ENV } from '../src/services/env';
 import { AgentProfile, getAgentProfile } from '../src/services/identity';
@@ -303,7 +303,11 @@ export default function Assistant() {
               </Txt>
               <Txt size={12} w={600} color={C.blueLink} numberOfLines={1}>
                 {AGENT_ENS} · {agentId?.verified ? 'verified on ENS' : 'human-backed'}
-                {hasAgentCreds() ? '' : ' · template mode'}
+                {hasDirectAnthropicKey()
+                  ? ''
+                  : hasAgentCreds()
+                    ? ' · Claude Code proxy'
+                    : ' · template mode'}
               </Txt>
             </View>
           </View>

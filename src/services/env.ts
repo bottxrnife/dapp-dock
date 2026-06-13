@@ -56,7 +56,15 @@ export const ENV = {
   // service. ensDomain is the namespace used for dapp/agent identities.
   ensDomain: process.env.EXPO_PUBLIC_ENS_DOMAIN ?? 'dappdock.eth',
   rpcUrl: process.env.EXPO_PUBLIC_ETH_RPC_URL ?? 'https://ethereum-rpc.publicnode.com',
+
+  // ── Design agent (Anthropic / Claude Code proxy) ───────────────────────────
+  // Direct API key takes precedence. When unset, agent.ts falls back to a local
+  // Anthropic-compatible proxy (dappdock-claude-proxy) on the dev machine.
+  anthropicProxyUrl: process.env.EXPO_PUBLIC_ANTHROPIC_PROXY_URL ?? '',
+  anthropicProxyKey: process.env.EXPO_PUBLIC_ANTHROPIC_PROXY_KEY ?? 'dummy',
 };
 
-export const hasWorldCreds = () => ENV.worldAppId.startsWith('app_');
+export const hasAnthropicProxy = () => ENV.anthropicProxyUrl.length > 0;
+export const hasWorldCreds = () =>
+  ENV.worldAppId.startsWith('app_') || ENV.worldRpId.startsWith('rp_');
 export const hasLifiKey = () => ENV.lifiApiKey.length > 0;

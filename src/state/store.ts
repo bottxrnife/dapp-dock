@@ -211,7 +211,21 @@ export async function syncLoyaltyFromChain() {
   if (!address) return;
   const chain = await readLoyalty(address);
   if (chain) {
-    const merged = { ...useApp.getState().loyalty, ...chain };
+    // Reconcile field-wise by the higher value so the ENS read-through can ADD
+    // merchants / top up, but never reverts local gains the device earned since
+    // the on-chain snapshot was written (local stays the writable source of truth).
+    const local = useApp.getState().loyalty;
+    const merged: Record<string, LoyaltyRecord> = { ...local };
+    for (const [ens, r] of Object.entries(chain)) {
+      const prev = local[ens];
+      merged[ens] = prev
+        ? {
+            punches: Math.max(prev.punches, r.punches),
+            points: Math.max(prev.points, r.points),
+            redeemed: Math.max(prev.redeemed, r.redeemed),
+          }
+        : r;
+    }
     persistJSON(KEYS.loyalty, merged);
     useApp.setState({ loyalty: merged, loyaltyOnchain: true });
   }

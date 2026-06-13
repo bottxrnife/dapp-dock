@@ -26,7 +26,7 @@ import { Linking } from 'react-native';
 import { keccak256, stringToBytes } from 'viem';
 import { ENV, hasWorldCreds } from './env';
 
-const BRIDGE = 'https://bridge.worldcoin.org';
+const BRIDGE = ENV.worldBridgeUrl;
 
 export type VerificationResult = {
   verified: boolean;
@@ -127,7 +127,7 @@ export async function verifyHuman(opts: {
     action: ENV.worldAction,
     signal: signalHash,
     action_description: 'Verify you are a unique human on DappDock',
-    verification_level: 'device',
+    verification_level: ENV.worldVerificationLevel,
   };
   const payload = cipher.encrypt(stringToBytes(JSON.stringify(request)));
 

@@ -245,7 +245,7 @@ export async function runComposerDeposit(
   const chainInfo = CHAINS.find((c) => c.chain.id === funded.chainId)!;
   const publicClient = publicClientFor(funded.chainId);
   const walletClient = walletClientFor(funded.chainId, account);
-  const amountRaw = parseUnits(String(amount), 6);
+  const amountRaw = parseUnits(amount.toFixed(6), 6); // USDC 6dp — clamp precision
 
   const quote = await fetchComposerQuote({
     fromChain: funded.chainId,

@@ -4,7 +4,7 @@ import { Alert, Linking, Pressable, TextInput, View } from 'react-native';
 import { MenuOrder, MenuItem } from '../../src/components/MenuOrder';
 import { PunchCard } from '../../src/components/PunchCard';
 import { RestaurantApp } from '../../src/components/RestaurantApp';
-import { BackButton, Chip, PrimaryButton, Pulse, Screen, Txt } from '../../src/components/ui';
+import { BackButton, Chip, PrimaryButton, Pulse, Screen, SuccessCheck, Txt } from '../../src/components/ui';
 import { authenticateForSpend } from '../../src/services/biometric';
 import { ExecutionResult, runFlow } from '../../src/services/execution';
 import { scheduleRewardReady } from '../../src/services/notify';
@@ -363,7 +363,7 @@ export default function Runtime() {
         <View style={{ marginTop: 16 }}>
           {punch && (
             <View style={{ marginBottom: 14 }}>
-              <PunchCard brand={manifest.name} total={punch.total} reward={punch.reward} record={record} onchain={loyaltyOnchain} />
+              <PunchCard brand={manifest.name} ens={manifest.ensName} category={manifest.category} total={punch.total} reward={punch.reward} record={record} onchain={loyaltyOnchain} />
             </View>
           )}
           <MenuOrder items={menu.items} cart={cart} onAdd={addItem} onRemove={removeItem} />
@@ -421,7 +421,7 @@ export default function Runtime() {
         <View style={{ flex: 1, marginTop: 16 }}>
           {punch && (
             <View style={{ marginBottom: 10 }}>
-              <PunchCard brand={manifest.name} total={punch.total} reward={punch.reward} record={record} onchain={loyaltyOnchain} />
+              <PunchCard brand={manifest.name} ens={manifest.ensName} category={manifest.category} total={punch.total} reward={punch.reward} record={record} onchain={loyaltyOnchain} />
             </View>
           )}
           <View
@@ -599,21 +599,8 @@ export default function Runtime() {
       )}
 
       {runState === 'done' && (
-        <View style={{ alignItems: 'center', paddingHorizontal: 14, paddingTop: 120 }}>
-          <View
-            style={{
-              width: 74,
-              height: 74,
-              borderRadius: 37,
-              backgroundColor: C.successBg,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Txt size={30} w={700} color={C.success}>
-              ✓
-            </Txt>
-          </View>
+        <View style={{ alignItems: 'center', paddingHorizontal: 14, paddingTop: 96 }}>
+          <SuccessCheck glyph={mode === 'redeem' ? '🎁' : '✓'} />
           <Txt size={25} w={800} ls={-0.015} style={{ marginTop: 22 }}>
             {mode === 'redeem' ? 'Enjoy!' : 'Done.'}
           </Txt>

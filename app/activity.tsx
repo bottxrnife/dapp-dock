@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { ArrowDownLeft, ArrowUpRight, Gift, Receipt, Star } from 'lucide-react-native';
 import React from 'react';
 import { Linking, Pressable, View } from 'react-native';
-import { BackButton, Screen, Txt } from '../src/components/ui';
+import { BackButton, FadeUp, Screen, Txt } from '../src/components/ui';
 import { ActivityEntry, useApp } from '../src/state/store';
 import { C } from '../src/theme';
 
@@ -90,7 +90,7 @@ export default function Activity() {
         </View>
       ) : (
         <View style={{ gap: 8, marginTop: 16 }}>
-          {activity.map((a) => {
+          {activity.map((a, i) => {
             const amountColor = a.points && a.points < 0 ? C.danger : C.success;
             const right = a.points
               ? `${a.points > 0 ? '+' : ''}${a.points.toLocaleString()} pts`
@@ -141,12 +141,14 @@ export default function Activity() {
                 ) : null}
               </View>
             );
-            return a.explorerUrl ? (
-              <Pressable key={a.id} onPress={() => Linking.openURL(a.explorerUrl!)}>
-                {row}
-              </Pressable>
-            ) : (
-              <View key={a.id}>{row}</View>
+            return (
+              <FadeUp key={a.id} delay={Math.min(i, 6) * 45}>
+                {a.explorerUrl ? (
+                  <Pressable onPress={() => Linking.openURL(a.explorerUrl!)}>{row}</Pressable>
+                ) : (
+                  row
+                )}
+              </FadeUp>
             );
           })}
         </View>

@@ -18,8 +18,21 @@ import { getWalletSnapshot } from './wallet';
 import { useApp } from '../state/store';
 import { DappManifest } from '../types';
 
-export const hasAgentCreds = () => (process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY ?? '').length > 0;
+export const hasDirectAnthropicKey = () =>
+  (process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY ?? '').length > 0;
+export const hasAgentCreds = () => hasDirectAnthropicKey() || ENV.anthropicProxyUrl.length > 0;
 const MODEL = process.env.EXPO_PUBLIC_ANTHROPIC_MODEL ?? 'claude-sonnet-4-5';
+
+function anthropicMessagesUrl(): string {
+  if (hasDirectAnthropicKey()) return 'https://api.anthropic.com/v1/messages';
+  const base = ENV.anthropicProxyUrl.replace(/\/$/, '');
+  return base.endsWith('/v1/messages') ? base : `${base}/v1/messages`;
+}
+
+function anthropicApiKey(): string {
+  if (hasDirectAnthropicKey()) return process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY ?? '';
+  return ENV.anthropicProxyKey;
+}
 
 // ---------------------------------------------------------------------------
 // Anthropic message types (minimal)
@@ -251,13 +264,15 @@ async function callAnthropic(messages: ApiMessage[]): Promise<{
   content: ContentBlock[];
   stop_reason: string;
 }> {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const res = await fetch(anthropicMessagesUrl(), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'x-api-key': process.env.EXPO_PUBLIC_ANTHROPIC_API_KEY ?? '',
+      'x-api-key': anthropicApiKey(),
       'anthropic-version': '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
+      ...(hasDirectAnthropicKey()
+        ? { 'anthropic-dangerous-direct-browser-access': 'true' }
+        : {}),
     },
     body: JSON.stringify({
       model: MODEL,
@@ -283,7 +298,7 @@ export async function runAgentTurn(
 ): Promise<ApiMessage[]> {
   if (!hasAgentCreds()) {
     // Keyless fallback: template generation so the loop still works.
-    hooks.onActivity('Drafting from template (no EXPO_PUBLIC_ANTHROPIC_API_KEY set)');
+    hooks.onActivity('Drafting from template (no Anthropic key or Claude Code proxy)');
     const sim = await simulateFlow(5);
     useApp.getState().setSimulation(sim);
     const manifest = generateManifest(userText);
@@ -291,9 +306,13 @@ export async function runAgentTurn(
     manifest.trust.simulated = sim.passed;
     hooks.onDraft(manifest);
     hooks.onText(
-      'I drafted this with the built-in template engine — add EXPO_PUBLIC_ANTHROPIC_API_KEY to unlock the full design agent. Review the generated dapp below.'
+      'I drafted this with the built-in template engine — add EXPO_PUBLIC_ANTHROPIC_API_KEY or point EXPO_PUBLIC_ANTHROPIC_PROXY_URL at your Claude Code proxy to unlock the full design agent. Review the generated dapp below.'
     );
     return history;
+  }
+
+  if (!hasDirectAnthropicKey()) {
+    hooks.onActivity('Using Claude Code proxy (subscription on dev machine)');
   }
 
   history.push({ role: 'user', content: userText });

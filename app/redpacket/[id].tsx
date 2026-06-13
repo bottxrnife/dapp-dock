@@ -1,10 +1,10 @@
 import * as Clipboard from 'expo-clipboard';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { Copy, Gift, PartyPopper } from 'lucide-react-native';
+import { Copy, Gift } from 'lucide-react-native';
 import React, { useState } from 'react';
 import { Alert, Pressable, View } from 'react-native';
 import { QR } from '../../src/components/QR';
-import { BackButton, Chip, PrimaryButton, Screen, Txt } from '../../src/components/ui';
+import { BackButton, Chip, CountUp, PrimaryButton, Screen, SuccessCheck, Txt } from '../../src/components/ui';
 import { notifyReceived } from '../../src/services/notify';
 import { verifyHuman } from '../../src/services/verification';
 import { useApp } from '../../src/state/store';
@@ -104,26 +104,21 @@ export default function RedPacketView() {
         </View>
 
         <View style={{ backgroundColor: C.inkPanel, borderRadius: 26, padding: 28, marginTop: 16, alignItems: 'center' }}>
-          <View
-            style={{
-              width: 64,
-              height: 64,
-              borderRadius: 32,
-              backgroundColor: 'rgba(255,255,255,0.12)',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <PartyPopper size={32} color={C.white} strokeWidth={2.2} />
-          </View>
+          <SuccessCheck size={64} bg="rgba(255,255,255,0.12)" color={C.white} glyph="🎉" />
           <Txt size={14} color="#B8C6F2" style={{ marginTop: 18 }}>
-            You got 🎉
+            You got
           </Txt>
-          <Txt size={42} w={800} color={C.white} style={{ marginTop: 4 }}>
-            ${won.toFixed(2)}
-          </Txt>
+          <CountUp
+            value={won}
+            prefix="$"
+            format={(n) => n.toFixed(2)}
+            size={42}
+            w={800}
+            color={C.white}
+            style={{ marginTop: 4 }}
+          />
           <Txt size={12.5} color="#B8C6F2" center lh={1.5} style={{ marginTop: 10, maxWidth: 260 }}>
-            Settling to your wallet on any chain via LI.FI.
+            Your share is recorded to your activity. It settles to your wallet via LI.FI once the sender funds the pool.
           </Txt>
         </View>
 

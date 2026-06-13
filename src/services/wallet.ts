@@ -108,7 +108,9 @@ export async function sendUsdc(opts: {
 
   const walletClient = walletClientFor(chainId, account);
   const publicClient = publicClientFor(chainId);
-  const amountRaw = parseUnits(String(opts.amountUsd), 6);
+  // USDC has 6 decimals — clamp so free-text amounts like "1.2345678" don't make
+  // viem throw "too many decimals".
+  const amountRaw = parseUnits(opts.amountUsd.toFixed(6), 6);
 
   const txHash = await walletClient.writeContract({
     address: info.usdc,
