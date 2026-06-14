@@ -6,7 +6,7 @@
  */
 import { APP } from "./config";
 import { listApps } from "./catalog";
-import { resolveAddress } from "./ens";
+import { getAgentProfile, resolveAddress, verifyName } from "./ens";
 import { validateManifest } from "./manifest";
 import { SEED_APPS } from "./seeds";
 import type { DappManifest } from "./types";
@@ -216,6 +216,16 @@ const TOOLS = [
     },
   },
   {
+    name: "get_agent_identity",
+    description:
+      "Look up another agent's on-chain identity by ENS name (ENSIP-26): its agent-context, agent-endpoint[mcp|a2a|web], and whether the name forward/reverse verifies. Use it to discover or verify agents. Returns {name, address, verified, agentContext, endpoints, hasRecords}.",
+    input_schema: {
+      type: "object",
+      properties: { name: { type: "string", description: 'an agent ENS name, e.g. "assistant.forge.eth"' } },
+      required: ["name"],
+    },
+  },
+  {
     name: "suggest_labels",
     description: `Propose 3 candidate lowercase ENS labels derived from an app name and report availability under ${APP.ensDomain} for each. Returns [{label, ensName, available}]. Use with check_ens_subname when naming a new app.`,
     input_schema: {
@@ -247,6 +257,7 @@ Tools for grounding & design:
 - get_capabilities - the full menu of component types, their fields, the skill patterns, and the one-per-human policies. Lean on it so you know exactly what you can offer.
 - list_sparks - the existing catalog, for inspiration and to avoid duplicate names/labels.
 - resolve_ens_name - verify a recipient the user names (e.g. "pay alice.eth") resolves to a real address before you use it.
+- get_agent_identity - look up / verify another agent's ENS identity (ENSIP-26 agent records + forward/reverse) for discovery.
 - suggest_labels + check_ens_subname - pick an available ENS label under ${APP.ensDomain} for a new app.
 - get_current_draft + draft_dapp_manifest - read and (re)write a single design.
 - draft_variations - offer 2-3 distinct full manifests at once for the user to pick from in the UI.
@@ -307,6 +318,20 @@ async function runTool(name: string, input: Record<string, unknown>, currentDraf
     const full = raw.includes(".") ? raw : raw ? `${raw}.eth` : "";
     const address = full ? await resolveAddress(full) : null;
     return JSON.stringify({ name: full || raw, address: address ?? null, resolves: !!address });
+  }
+  if (name === "get_agent_identity") {
+    const raw = String(input.name ?? "").trim().toLowerCase();
+    const full = raw.includes(".") ? raw : raw ? `${raw}.eth` : "";
+    if (!full) return JSON.stringify({ error: "name required" });
+    const [profile, verification] = await Promise.all([getAgentProfile(full), verifyName(full)]);
+    return JSON.stringify({
+      name: full,
+      address: verification.address,
+      verified: verification.verified,
+      agentContext: profile.context,
+      endpoints: profile.endpoints,
+      hasRecords: profile.hasRecords,
+    });
   }
   if (name === "suggest_labels") {
     const suggestions: { label: string; ensName: string; available: boolean }[] = [];

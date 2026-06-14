@@ -20,6 +20,9 @@
 # production
 /build
 
+# walrus CLI export staging (public blobs uploaded via `walrus store`)
+.walrus-public/
+
 # misc
 .DS_Store
 *.pem

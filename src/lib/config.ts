@@ -12,6 +12,8 @@ export const APP = {
   worldEnv: (process.env.NEXT_PUBLIC_WORLD_ENV ?? "production") as "production" | "staging",
   // ENS namespace for created apps + the design agent's identity.
   ensDomain: process.env.NEXT_PUBLIC_ENS_DOMAIN ?? "forge.eth",
+  // The design agent's own ENS name — its ENSIP-26 agent records are read live.
+  agentEns: process.env.NEXT_PUBLIC_AGENT_ENS ?? process.env.NEXT_PUBLIC_ENS_DOMAIN ?? "forge.eth",
   // World Chain mainnet — where MiniKit pay / sendTransaction settle.
   worldChainId: 480,
 } as const;

@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth";
 import { APP } from "@/lib/config";
 import { getLoyalty } from "@/lib/store";
 import { getThemeMode, setThemeMode, type ThemeMode } from "@/lib/theme";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const THEME_OPTIONS: { mode: ThemeMode; label: string; icon: string }[] = [
@@ -106,6 +107,20 @@ export default function ProfilePage() {
 
         {/* details */}
         <div className="mt-4 flex flex-col gap-3">
+          <Link
+            href="/identity"
+            className="flex items-center gap-3.5 rounded-2xl bg-wash p-4 transition active:scale-[0.98]"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface text-ink">
+              <Icon name="agent" size={20} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[14.5px] font-bold">Agent identity (ENS)</p>
+              <p className="mt-0.5 truncate text-[13px] text-muted">{APP.agentEns}</p>
+            </div>
+            <Icon name="chevron-right" size={18} className="shrink-0 text-faint" />
+          </Link>
+
           <div className="flex items-center justify-between gap-3 rounded-3xl bg-wash p-4">
             <div className="min-w-0">
               <p className="text-[14.5px] font-bold">World ID</p>
