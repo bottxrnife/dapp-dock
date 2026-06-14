@@ -41,6 +41,14 @@ export default function AppRun() {
       )}
       {status === "ok" && manifest && (
         <>
+          {manifest.storage?.imageBlobId && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={`/api/blob/${manifest.storage.imageBlobId}`}
+              alt={`${manifest.name} cover`}
+              className="h-44 w-full rounded-2xl object-cover"
+            />
+          )}
           <Card>
             <p className="text-xs text-blue-link">{manifest.ensName}</p>
             <p className="mt-1 text-sm text-muted">{manifest.description}</p>

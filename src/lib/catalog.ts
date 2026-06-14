@@ -15,6 +15,8 @@ export type AppRecord = {
   requiresWorldId: boolean;
   creator: string;
   manifestBlobId?: string;
+  imageBlobId?: string;
+  featured?: boolean;
   ts: number;
 };
 
@@ -22,7 +24,8 @@ const published: AppRecord[] = [];
 const manifests = new Map<string, DappManifest>();
 for (const m of SEED_APPS) manifests.set(m.ensName, m);
 
-function toRecord(m: DappManifest, ts: number, blobId?: string): AppRecord {
+function toRecord(m: DappManifest, ts: number, blobId?: string, featured?: boolean): AppRecord {
+  const imageBlobId = m.storage?.imageBlobId;
   return {
     ensName: m.ensName,
     name: m.name,
@@ -31,12 +34,16 @@ function toRecord(m: DappManifest, ts: number, blobId?: string): AppRecord {
     requiresWorldId: m.permissions.requiresWorldId,
     creator: m.creator,
     manifestBlobId: blobId ?? m.storage?.manifestBlobId,
+    imageBlobId,
+    // Apps with a cover image always get featured; otherwise the caller decides.
+    featured: featured || !!imageBlobId,
     ts,
   };
 }
 
 export function listApps(): AppRecord[] {
-  const seeds = SEED_APPS.map((m) => toRecord(m, 0));
+  // Feature the first few seeds so the catalog rail is never empty.
+  const seeds = SEED_APPS.map((m, i) => toRecord(m, 0, undefined, i < 4));
   return [...published, ...seeds];
 }
 

@@ -2,7 +2,7 @@
 
 import { Button, Card, Pill } from "@/components/ui";
 import type { DappManifest } from "@/lib/types";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ChangeEvent } from "react";
 
 type PublishResult = { ensName: string; blobId: string | null; walrusUrl: string | null; storageError?: string };
 
@@ -11,6 +11,8 @@ export default function PublishPage() {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<PublishResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   useEffect(() => {
     const raw = sessionStorage.getItem("forge.draft");
@@ -38,6 +40,29 @@ export default function PublishPage() {
       setError(String(e));
     } finally {
       setBusy(false);
+    }
+  };
+
+  const onPickImage = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file
+    if (!file || !draft) return;
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const res = await fetch("/api/upload", { method: "POST", body: file });
+      const data = await res.json();
+      if (!res.ok || !data.blobId) {
+        setUploadError(data.error ?? "Upload failed");
+      } else {
+        const next: DappManifest = { ...draft, storage: { ...draft.storage, imageBlobId: data.blobId } };
+        setDraft(next);
+        sessionStorage.setItem("forge.draft", JSON.stringify(next));
+      }
+    } catch (err) {
+      setUploadError(String(err));
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -83,6 +108,33 @@ export default function PublishPage() {
           </li>
         </ul>
       </Card>
+
+      {!result && (
+        <Card>
+          <p className="text-sm font-bold">Add a cover image (optional)</p>
+          <p className="mt-0.5 text-xs text-muted">Stored on Walrus and shown on your Spark.</p>
+          {draft.storage?.imageBlobId ? (
+            <div className="mt-3 flex items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/api/blob/${draft.storage.imageBlobId}`}
+                alt="Cover preview"
+                className="h-16 w-16 rounded-xl object-cover"
+              />
+              <label className="cursor-pointer text-xs font-semibold text-blue-link">
+                {uploading ? "Uploading…" : "Replace image"}
+                <input type="file" accept="image/*" className="hidden" onChange={onPickImage} disabled={uploading} />
+              </label>
+            </div>
+          ) : (
+            <label className="mt-3 flex cursor-pointer items-center justify-center rounded-2xl bg-wash px-4 py-6 text-sm font-semibold text-blue-link">
+              {uploading ? "Uploading…" : "Choose image"}
+              <input type="file" accept="image/*" className="hidden" onChange={onPickImage} disabled={uploading} />
+            </label>
+          )}
+          {uploadError && <p className="mt-2 text-xs font-semibold text-warn">{uploadError}</p>}
+        </Card>
+      )}
 
       {result ? (
         <Card className="!bg-success-bg">

@@ -16,7 +16,7 @@ function Icon({ d, active }: { d: string; active: boolean }) {
 
 const HOME = "M3 10.5 12 3l9 7.5M5 9.5V21h14V9.5";
 const APPS = "M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z";
-const REWARDS = "M12 3l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8L3.5 9.2l5.9-.9z";
+const ACTIVITY = "M22 12h-4l-3 9L9 3l-3 9H2";
 const PROFILE = "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM5 21a7 7 0 0 1 14 0";
 
 const SIDE = [
@@ -24,7 +24,7 @@ const SIDE = [
   { href: "/catalog", label: "Sparks", d: APPS, match: (p: string) => p.startsWith("/catalog") || p.startsWith("/app") },
 ];
 const SIDE2 = [
-  { href: "/rewards", label: "Rewards", d: REWARDS, match: (p: string) => p.startsWith("/rewards") },
+  { href: "/activity", label: "Activity", d: ACTIVITY, match: (p: string) => p.startsWith("/activity") },
   { href: "/profile", label: "Profile", d: PROFILE, match: (p: string) => p.startsWith("/profile") },
 ];
 
@@ -46,7 +46,10 @@ export function FloatingNav() {
   );
 
   return (
-    <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 mx-auto max-w-md">
+    <div
+      className="pointer-events-none fixed inset-x-0 bottom-0 z-50 mx-auto max-w-md"
+      style={{ transform: "translateZ(0)", WebkitBackfaceVisibility: "hidden", willChange: "transform" }}
+    >
       <div className="bg-gradient-to-t from-bg via-bg to-transparent px-5 pb-[max(env(safe-area-inset-bottom),12px)] pt-7">
         <div className="pointer-events-auto flex items-center justify-between rounded-full bg-surface px-4 py-2.5 shadow-[0_8px_30px_rgba(11,16,32,0.14)]">
           {SIDE.map((t) => (

@@ -94,6 +94,14 @@ export function ManifestRunner({ manifest }: { manifest: DappManifest }) {
 
   return (
     <div className="flex flex-col gap-3">
+      {manifest.storage?.imageBlobId && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={`/api/blob/${manifest.storage.imageBlobId}`}
+          alt={`${manifest.name} cover`}
+          className="h-28 w-full rounded-2xl object-cover"
+        />
+      )}
       <div className="rounded-2xl bg-blue-soft px-4 py-3 text-sm font-semibold text-blue-body">{manifest.outcome}</div>
       {manifest.permissions.requiresWorldId && (
         <Pill tone="green">World ID · {manifest.permissions.worldPolicy ?? "one per human"}</Pill>

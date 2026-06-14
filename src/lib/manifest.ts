@@ -102,6 +102,7 @@ export function validateManifest(input: any, creator = "a human"): ValidationRes
       flowId: `flow_${label}_${Date.now().toString(36)}`,
       steps: steps.map((s, i) => ({ id: s.id ?? `s${i}`, label: s.label, detail: s.detail })),
     },
+    storage: input.storage,
     version: "1.0.0",
   };
   return { ok: true, manifest, warnings };

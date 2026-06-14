@@ -21,7 +21,7 @@ export async function POST(req: Request) {
     storageError = String(e);
   }
 
-  const stored = { ...v.manifest, storage: { manifestBlobId: blobId } };
+  const stored = { ...v.manifest, storage: { ...v.manifest.storage, manifestBlobId: blobId } };
   addApp(stored, blobId);
 
   return NextResponse.json({
