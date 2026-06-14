@@ -14,6 +14,15 @@ const bricolage = Bricolage_Grotesque({
 export const metadata: Metadata = {
   title: APP.name,
   description: APP.tagline,
+  icons: {
+    icon: [{ url: "/icon.png", type: "image/png" }, { url: "/brand/logo-512.png", sizes: "512x512", type: "image/png" }],
+    apple: [{ url: "/apple-icon.png", sizes: "180x180", type: "image/png" }],
+  },
+  openGraph: {
+    title: APP.name,
+    description: APP.tagline,
+    images: [{ url: "/brand/logo-512.png", width: 512, height: 512, alt: "Forge spark icon" }],
+  },
 };
 
 export const viewport: Viewport = {
