@@ -139,7 +139,7 @@ src/
 | `WALRUS_PUBLISHER_URL`, `WALRUS_AGGREGATOR_URL` | Walrus | `PUT /v1/blobs` to store the manifest **and uploaded cover images** (`storeBytes` via `/api/upload`), `GET /v1/blobs/{id}` to read (images served through `/api/blob/{id}`) | publish still records locally + clear error if Walrus is down |
 | `WALRUS_NETWORK`, `SUI_ADDRESS`, `FORGE_PUBLIC_CATALOG_BLOB_ID` | Walrus CLI + Sui wallet | Local `walrus store` for **public** assets (seed catalog, manifests); keystore at `~/.sui/sui_config/sui.keystore` | optional; app runs from in-memory seeds without it |
 
-**Live World ID app (created via the developer-portal MCP, team "dApp Dock"):** app `app_76c26b1af08593ac89bd7e3e80862e0a`, RP `rp_a4d9018439240167` (registered on-chain), action `verify-human`. The Dev Portal app is in **mini-app** mode, named **Forge**. Set its **integration URL** to your deployed/tunnel URL before testing in World App. (An earlier app `app_e642b84…` is retired — `.env` is the source of truth.)
+**Live World ID app (Dev Portal, team "dApp Dock"):** app `app_129a788263c412af13fb073f6d467974`, RP `rp_0a19342e5af2dedd` (registered on-chain), action `verify-human`. Mini-app **Forge** at integration URL **`https://worldapp-forge.vercel.app`**. Retired apps: `app_76c26b1af08593ac89bd7e3e80862e0a`, `app_e642b84…`. `.env` / Vercel env is the source of truth for keys.
 
 **Live ENS v2 app (Sepolia):** parent **`forgedapp.eth`** registered on ENS v2 (`tx 0x4633cc1b…`), owned by the registrar wallet `0x174B3865…0675`. v2 addresses (discovered on-chain): ETHRegistry `0xDEDB9291…B398B67`, ETHRegistrar `0x8c2E866B…aFFcA`, VerifiableFactory `0xd2a632d8…36198`, UserRegistryImpl `0x0F99e7Ea…2917`, ResolverImpl `0xE566a1FB…4cb9c`, mock USDC `0x3DfC8b53…38D9` (open `mint`). Forge's subregistry for `forgedapp.eth` = `0x2c8d4cc1…F4413`, shared resolver = `0xAa0fD17B…937c`. Live subnames: `hello.forgedapp.eth`, `coffee-tip.forgedapp.eth` (both resolve `agent-context` via the Universal Resolver). Re-run `scripts/setup-ens-v2-subnames.mjs` if ENS resets the v2 contracts.
 
@@ -160,7 +160,7 @@ In a desktop browser you get the full UI, the agent, Walrus publishing, and the 
 **Preview inside World App:**
 1. Expose the dev server: `ngrok http 3000` (or `npx vercel`) → public HTTPS URL.
 2. Set that URL as the app's **integration URL** in the Developer Portal (or via the `configure_mini_app` MCP tool).
-3. Open [docs.world.org/mini-apps/quick-start/testing](https://docs.world.org/mini-apps/quick-start/testing), enter App ID `app_76c26b1af08593ac89bd7e3e80862e0a`, scan the QR. (Eruda helps with mobile logs.)
+3. Open [docs.world.org/mini-apps/quick-start/testing](https://docs.world.org/mini-apps/quick-start/testing), enter App ID `app_129a788263c412af13fb073f6d467974`, scan the QR. (Eruda helps with mobile logs.)
 
 **Verify before shipping:** `npx tsc --noEmit`, `npm run build`.
 
@@ -191,6 +191,7 @@ In a desktop browser you get the full UI, the agent, Walrus publishing, and the 
 
 | Date | Author | Change |
 |---|---|---|
+| 2026-06-14 | Build agent | **Rename to worldapp-forge.** GitHub repo → `bottxrnife/worldapp-forge`; Vercel production → `https://worldapp-forge.vercel.app`. New Dev Portal mini app `app_129a788263c412af13fb073f6d467974` + RP `rp_0a19342e5af2dedd` (registered); Vercel env updated. |
 | 2026-06-14 | Build agent | **"Your Sparks" rail.** Published Sparks persist in `mySparks.ts` (localStorage + full manifest). Catalog + Home show a **Your Sparks** section above Featured; publish success links there; run page falls back to the local manifest if the server catalog cold-starts. |
 | 2026-06-14 | Build agent | **Issue audit #8–#16 (real fixes).** Root cause: `ManifestRunner` returned `<RestaurantApp>` without `compact`/`editable`/`onManifestChange`, so menu Spark previews couldn't upload images (#11/#12). Nav bar now pins via `visualViewport` **top** positioning (#6/#9). Preview overlay uses fixed header + scroll body (#10); OS back handled by `BackStackProvider` (#5). Home/catalog sticky headers (#4); Add sheet backdrop decoupled from sheet (#1). Dark-mode Spark contrast extended to `[data-spark-shell]` (#13). `isSparkCreator()` for Edit (#12). Ticket/unlock icon paths redrawn (#15/#16). |
 | 2026-06-14 | Build agent | **GitHub issues #8–#16 (batch UX fix).** #8 Human badge moved off cover art to the title row on catalog cards. #9/#10 FloatingNav: visualViewport bottom pin retained; Create FAB sized to sit inside the pill (no overlap); preview overlay hides the nav bar. #11 Image uploads: `ImageUploadSlot` + `walrusClient.ts` on Create draft/preview, Publish, and menu items; compact editable hero strip in preview. #12 Edit flow: published Spark run page → Edit → `/create?edit=1` reopens agent with draft. #13 Dark-mode Spark panel contrast via `[data-spark-panel]` + `--spark-ink` overrides in globals.css. #14 `WalrusProof` shows copyable Walrus URLs on run/publish pages. #15/#16 Redrew `ticket` + `unlock` icon paths (stub/perforation and shackle alignment). `tsc` + `next build` clean. |

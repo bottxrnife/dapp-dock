@@ -4,7 +4,7 @@
 
 Describe an everyday app — Forge's agent designs it as a schema-validated manifest, gives it an **ENS** name, stores it on **Walrus**, and only verified humans (**World ID**) can run or claim it.
 
-A World App **Mini App** (Next.js 16 + MiniKit + IDKit), rebuilt from the original Expo "DappDock" superapp. App ID: `app_76c26b1af08593ac89bd7e3e80862e0a`.
+A World App **Mini App** (Next.js 16 + MiniKit + IDKit). Production: [worldapp-forge.vercel.app](https://worldapp-forge.vercel.app). App ID: `app_129a788263c412af13fb073f6d467974`.
 
 ## Three sponsor layers (no overlap)
 
@@ -38,8 +38,8 @@ In a desktop browser you get the full UI, the agent, Walrus publishing, on-chain
 ## Preview inside World App
 
 1. Expose the dev server: `ngrok http 3000` (or `npx vercel`) → public HTTPS URL.
-2. Set that URL as the app's **integration URL** in the [Developer Portal](https://developer.world.org) (the app is already in **mini-app** mode, named Forge).
-3. Open [docs.world.org/mini-apps/quick-start/testing](https://docs.world.org/mini-apps/quick-start/testing), enter App ID `app_76c26b1af08593ac89bd7e3e80862e0a`, and **scan the QR**. Forge opens inside World App (sign-in + World ID work through the tunnel since the local server reads your `.env`). Tip: add Eruda for mobile logs.
+2. Set that URL as the app's **integration URL** in the [Developer Portal](https://developer.world.org) if you're not using production (`https://worldapp-forge.vercel.app`).
+3. Open [docs.world.org/mini-apps/quick-start/testing](https://docs.world.org/mini-apps/quick-start/testing), enter App ID `app_129a788263c412af13fb073f6d467974`, and **scan the QR**. Forge opens inside World App. Tip: add Eruda for mobile logs.
 
 ## Architecture
 
