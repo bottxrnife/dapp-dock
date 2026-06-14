@@ -41,7 +41,7 @@ export default function Home() {
           <Link
             href="/profile"
             className="flex h-9 w-9 items-center justify-center rounded-full"
-            style={{ background: "linear-gradient(135deg,#3450A1,#6D28D9)" }}
+            style={{ background: "linear-gradient(135deg,#00b4ff,#0066ff)" }}
           >
             <span className="text-sm font-extrabold text-white">{(user?.username ?? "0x")[0]?.toUpperCase()}</span>
           </Link>
@@ -50,31 +50,38 @@ export default function Home() {
           </span>
         </div>
 
-        <h1 className="mt-4 text-[28px] font-extrabold leading-none tracking-tight">{APP.name}</h1>
-        <p className="mt-1.5 text-[15px] text-muted">Build a Spark — an app an agent makes for you</p>
+        <h1 className="display mt-4 text-[34px] font-extrabold leading-none">{APP.name}</h1>
+        <p className="mt-2 text-[15px] text-muted">Build a Spark — an app an agent makes for you</p>
 
         {/* hero — the design agent */}
         <Link
           href="/create"
-          className="mt-4 block overflow-hidden rounded-3xl p-5"
-          style={{ background: "linear-gradient(135deg,#2740A0 0%,#5B34C7 60%,#8A3FD1 100%)" }}
+          className="relative mt-4 block overflow-hidden rounded-[28px] p-6 shadow-pop"
+          style={{ background: "linear-gradient(135deg,#00b4ff 0%,#0066ff 100%)" }}
         >
-          <p className="text-[11px] font-bold uppercase tracking-wider text-white/70">Design agent</p>
-          <h2 className="mt-1 text-2xl font-extrabold text-white">Create a Spark</h2>
-          <p className="mt-1.5 max-w-[16rem] text-sm leading-relaxed text-white/85">
+          <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-white/25 blur-2xl" />
+          <div className="pointer-events-none absolute right-5 top-5 text-3xl">✨</div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/75">Design agent</p>
+          <h2 className="display mt-1.5 text-[26px] font-extrabold leading-tight text-white">Create a Spark</h2>
+          <p className="mt-2 max-w-[17rem] text-sm leading-relaxed text-white/90">
             Describe it — an agent builds it, names it on ENS, stores it on Walrus.
           </p>
-          <span className="mt-4 inline-flex rounded-full bg-white px-5 py-2.5 text-sm font-bold text-ink">Start building</span>
+          <span className="mt-4 inline-flex rounded-full bg-white px-5 py-2.5 text-sm font-extrabold text-brand-strong">
+            Start building →
+          </span>
         </Link>
 
         {/* Sparks grid */}
-        <div className="mt-7 flex items-center justify-between">
-          <h3 className="text-lg font-extrabold">Sparks</h3>
-          <Link href="/catalog" className="text-sm font-semibold text-muted">Get more ›</Link>
+        <div className="mt-8 flex items-center justify-between">
+          <h3 className="display text-xl font-extrabold">Sparks</h3>
+          <Link href="/catalog" className="text-sm font-semibold text-brand-strong">Get more ›</Link>
         </div>
         <div className="mt-3 grid grid-cols-4 gap-x-3 gap-y-4">
           <Link href="/create" className="flex flex-col items-center gap-1.5">
-            <div className="flex h-[60px] w-[60px] items-center justify-center rounded-[22px] bg-cta">
+            <div
+              className="flex h-[60px] w-[60px] items-center justify-center rounded-[22px] text-white shadow-pop"
+              style={{ background: "linear-gradient(135deg,#00b4ff,#0089e6)" }}
+            >
               <span className="text-2xl">✨</span>
             </div>
             <span className="w-full truncate text-center text-[11px] font-medium">Create</span>
@@ -96,9 +103,9 @@ export default function Home() {
         {/* Featured */}
         {featured.length > 0 && (
           <>
-            <div className="mt-7 flex items-center justify-between">
-              <h3 className="text-lg font-extrabold">Featured</h3>
-              <Link href="/catalog" className="text-sm font-semibold text-muted">See all ›</Link>
+            <div className="mt-8 flex items-center justify-between">
+              <h3 className="display text-xl font-extrabold">Featured</h3>
+              <Link href="/catalog" className="text-sm font-semibold text-brand-strong">See all ›</Link>
             </div>
             <div className="-mx-5 mt-3 flex gap-3 overflow-x-auto px-5 pb-1" style={{ scrollbarWidth: "none" }}>
               {featured.map((a) => (
@@ -118,7 +125,7 @@ export default function Home() {
         )}
 
         {/* How it works */}
-        <h3 className="mt-7 text-lg font-extrabold">How it works</h3>
+        <h3 className="display mt-8 text-xl font-extrabold">How it works</h3>
         <div className="mt-3 flex flex-col gap-2.5">
           {[
             ["🧑", "Verified humans", "World ID gates who can create, run, and claim — one per human."],

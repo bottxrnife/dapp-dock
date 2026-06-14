@@ -44,9 +44,9 @@ export default function ActivityPage() {
   return (
     <>
       <main className="mx-auto w-full max-w-md px-5 pb-28 pt-6">
-        <h1 className="text-[28px] font-extrabold tracking-tight">Activity</h1>
+        <h1 className="display text-[30px] font-extrabold">Activity</h1>
 
-        <div className="mt-4 rounded-3xl bg-[#16204a] p-5 text-white">
+        <div className="mt-4 rounded-3xl bg-ink-panel p-5 text-white">
           <p className="text-xs font-bold uppercase tracking-wider text-white/60">Total points</p>
           <p className="mt-1 text-4xl font-extrabold">{totalPoints.toLocaleString()}</p>
           <p className="mt-1 text-sm text-white/70">
@@ -54,7 +54,7 @@ export default function ActivityPage() {
           </p>
         </div>
 
-        <h3 className="mt-6 text-lg font-extrabold">Activity</h3>
+        <h3 className="display mt-6 text-xl font-extrabold">Activity</h3>
         {activity.length === 0 ? (
           <div className="mt-3 rounded-2xl bg-wash p-6 text-center">
             <p className="text-sm text-muted">Run a Spark and your receipts show up here.</p>
@@ -94,7 +94,7 @@ export default function ActivityPage() {
 
         {passes.length > 0 && (
           <>
-            <h3 className="mt-6 text-lg font-extrabold">Your passes</h3>
+            <h3 className="display mt-6 text-xl font-extrabold">Your passes</h3>
             <div className="mt-3 flex flex-col gap-2.5">
               {passes.map(([ens, r]) => {
                 const accent = appAccent(ens);

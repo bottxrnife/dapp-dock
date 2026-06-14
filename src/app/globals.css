@@ -1,27 +1,53 @@
 @import "tailwindcss";
 
-/* Forge design tokens (ported from the original app's palette). */
+/*
+ * Forge design tokens — Shakepay-inspired makeover.
+ * Electric-blue accent (#00A2FF, "Shakepay Blue"), bold display type, playful
+ * rounded geometry, soft shadows. Spacing follows the World mini-app design
+ * guidelines (24px page padding, 16px in-section, 32px between sections).
+ */
 @theme inline {
+  /* base surfaces + text */
   --color-bg: #ffffff;
   --color-surface: #ffffff;
-  --color-wash: #f3f4f7;
+  --color-wash: #eef1f7;
   --color-ink: #0b1020;
-  --color-muted: #6b7280;
-  --color-faint: #9aa1b2;
-  --color-blue-soft: #dce7ff;
-  --color-blue-soft-deep: #c7d8ff;
-  --color-blue-ink: #16204a;
-  --color-blue-body: #22305c;
-  --color-blue-link: #3450a1;
-  --color-cta: #000000;
+  --color-muted: #5b6576;
+  --color-faint: #97a0b1;
+  --color-ink-panel: #0e1322; /* rich near-black for dark "card" panels */
+
+  /* Shakepay electric-blue accent family */
+  --color-brand: #00a2ff;
+  --color-brand-strong: #0089e6;
+  --color-brand-soft: #e6f5ff;
+  --color-brand-ink: #00466f;
+
+  /* legacy blue-* names mapped onto the brand so existing classes go electric */
+  --color-blue-soft: #e6f5ff;
+  --color-blue-soft-deep: #cdebff;
+  --color-blue-ink: #00375e;
+  --color-blue-body: #0b4e78;
+  --color-blue-link: #0089e6;
+
+  /* primary action: bold near-black (accessible), electric is the accent */
+  --color-cta: #0b1020;
   --color-cta-text: #ffffff;
-  --color-success: #1b7a45;
-  --color-success-bg: #dff5e7;
+
+  /* status */
+  --color-success: #0a8a4a;
+  --color-success-bg: #d8f5e4;
   --color-warn: #8a6a12;
   --color-warn-bg: #fff4d6;
-  --color-divider: #e5e7eb;
-  --color-divider-soft: #f1f2f6;
+
+  --color-divider: #e6e8ee;
+  --color-divider-soft: #f1f3f8;
+
   --font-sans: var(--font-geist-sans);
+  --font-display: var(--font-bricolage);
+
+  --shadow-soft: 0 6px 20px rgba(11, 16, 32, 0.06);
+  --shadow-card: 0 8px 30px rgba(11, 16, 32, 0.1);
+  --shadow-pop: 0 12px 30px rgba(0, 138, 230, 0.32);
 }
 
 html,
@@ -34,9 +60,22 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans), system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
   /* respect World App webview safe areas */
   padding-top: env(safe-area-inset-top);
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Bold display headings carry the "Shakepay" typographic signature. */
+.display {
+  font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+::selection {
+  background: var(--color-brand);
+  color: #ffffff;
 }
 
 * {

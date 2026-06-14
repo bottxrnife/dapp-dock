@@ -11,11 +11,11 @@ export function Landing() {
       <div>
         <div
           className="flex h-16 w-16 items-center justify-center rounded-3xl"
-          style={{ background: "linear-gradient(135deg,#2740A0,#5B34C7 60%,#8A3FD1)" }}
+          style={{ background: "linear-gradient(135deg,#00b4ff 0%,#0066ff 100%)" }}
         >
           <span className="text-3xl">✨</span>
         </div>
-        <h1 className="mt-6 text-4xl font-extrabold tracking-tight">{APP.name}</h1>
+        <h1 className="display mt-6 text-5xl font-extrabold">{APP.name}</h1>
         <p className="mt-3 max-w-[20rem] text-lg leading-relaxed text-muted">
           Describe an idea — an agent builds it into a <span className="font-semibold text-ink">Spark</span>: a
           human-only mini experience, named on ENS and stored on Walrus.

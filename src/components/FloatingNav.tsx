@@ -39,7 +39,7 @@ export function FloatingNav() {
   const createActive = pathname.startsWith("/create");
 
   const Tab = ({ href, label, d, on }: { href: string; label: string; d: string; on: boolean }) => (
-    <Link href={href} className={`flex w-[56px] flex-col items-center gap-1 ${on ? "text-ink" : "text-faint"}`}>
+    <Link href={href} className={`flex w-[56px] flex-col items-center gap-1 transition-colors ${on ? "text-brand" : "text-faint"}`}>
       <Icon d={d} active={on} />
       <span className={`text-[10.5px] ${on ? "font-bold" : "font-medium"}`}>{label}</span>
     </Link>
@@ -63,13 +63,14 @@ export function FloatingNav() {
             aria-label="Create"
           >
             <span
-              className={`flex h-[52px] w-[52px] items-center justify-center rounded-full bg-cta shadow-[0_8px_20px_rgba(11,16,32,0.3)] ${
-                createActive ? "ring-2 ring-blue-link/40" : ""
+              className={`flex h-[52px] w-[52px] items-center justify-center rounded-full text-white shadow-pop ${
+                createActive ? "ring-2 ring-brand/40" : ""
               }`}
+              style={{ background: "linear-gradient(135deg,#00b4ff,#0089e6)" }}
             >
               <span className="text-2xl">✨</span>
             </span>
-            <span className={`mt-1 text-[10.5px] ${createActive ? "font-bold text-ink" : "font-medium text-faint"}`}>
+            <span className={`mt-1 text-[10.5px] ${createActive ? "font-bold text-brand" : "font-medium text-faint"}`}>
               Create
             </span>
           </button>

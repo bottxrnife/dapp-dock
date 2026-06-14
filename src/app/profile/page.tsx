@@ -11,10 +11,10 @@ export default function ProfilePage() {
   return (
     <>
       <main className="mx-auto w-full max-w-md px-5 pb-28 pt-6">
-        <h1 className="text-[28px] font-extrabold tracking-tight">Profile</h1>
+        <h1 className="display text-[30px] font-extrabold">Profile</h1>
 
         <div className="mt-4 flex items-center gap-3 rounded-3xl bg-wash p-4">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: "linear-gradient(135deg,#3450A1,#6D28D9)" }}>
+          <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: "linear-gradient(135deg,#00b4ff,#0066ff)" }}>
             <span className="text-lg font-extrabold text-white">{(user?.username ?? "0")[0]?.toUpperCase()}</span>
           </div>
           <div className="min-w-0 flex-1">

@@ -130,7 +130,7 @@ export default function CreatePage() {
       <>
         <main className="mx-auto w-full max-w-md px-5 pb-28 pt-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-[28px] font-extrabold tracking-tight">Chats</h1>
+            <h1 className="display text-[30px] font-extrabold">Chats</h1>
             <button onClick={newChat} className="rounded-full bg-cta px-4 py-2 text-sm font-bold text-cta-text">
               + New
             </button>

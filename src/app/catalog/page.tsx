@@ -103,7 +103,7 @@ export default function CatalogPage() {
   return (
     <>
       <main className="mx-auto w-full max-w-md px-5 pb-28 pt-6">
-        <h1 className="text-[28px] font-extrabold tracking-tight">Sparks</h1>
+        <h1 className="display text-[30px] font-extrabold">Sparks</h1>
         <p className="mt-1.5 text-[15px] text-muted">Browse human-built Sparks, made with the agent</p>
 
         {loading && <p className="mt-6 text-sm text-muted">Loading…</p>}
@@ -129,7 +129,7 @@ export default function CatalogPage() {
             {/* Featured rail */}
             {featured.length > 0 && (
               <section className="mt-5">
-                <h3 className="text-lg font-extrabold">Featured</h3>
+                <h3 className="display text-xl font-extrabold">Featured</h3>
                 <Rail>
                   {featured.map((a) => (
                     <SparkCard key={a.ensName} a={a} featured />
@@ -146,7 +146,7 @@ export default function CatalogPage() {
                     key={c}
                     onClick={() => setChip(c)}
                     className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-                      chip === c ? "bg-cta text-cta-text" : "bg-wash text-ink"
+                      chip === c ? "bg-brand text-white" : "bg-wash text-ink"
                     }`}
                   >
                     {c}
@@ -159,7 +159,7 @@ export default function CatalogPage() {
             {visible.map((s) => (
               <section key={s.cat} className="mt-6">
                 <div className="flex items-baseline justify-between">
-                  <h3 className="text-lg font-extrabold">{s.cat}</h3>
+                  <h3 className="display text-xl font-extrabold">{s.cat}</h3>
                   <span className="text-[13px] font-semibold text-muted">
                     {s.items.length} {s.items.length === 1 ? "Spark" : "Sparks"}
                   </span>

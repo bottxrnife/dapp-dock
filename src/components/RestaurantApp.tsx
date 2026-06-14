@@ -145,7 +145,7 @@ export function RestaurantApp({ manifest }: { manifest: DappManifest }) {
           <p className="truncate text-[15px] font-extrabold">{manifest.name}</p>
           <p className="truncate text-[12px] font-semibold text-blue-link">{ens}</p>
         </div>
-        <span className="shrink-0 rounded-full bg-[#16204a] px-3 py-1.5 text-[12.5px] font-bold text-white">
+        <span className="shrink-0 rounded-full bg-ink-panel px-3 py-1.5 text-[12.5px] font-bold text-white">
           ★ {points.toLocaleString()} pts
         </span>
       </div>
@@ -222,7 +222,7 @@ export function RestaurantApp({ manifest }: { manifest: DappManifest }) {
       {/* ── Rewards ── */}
       {tab === "rewards" && (
         <>
-          <div className="rounded-2xl bg-[#16204a] p-[18px] text-white">
+          <div className="rounded-2xl bg-ink-panel p-[18px] text-white">
             <p className="text-[11px] font-bold uppercase tracking-[0.08em] text-white/55">Your points</p>
             <p className="mt-1 text-[30px] font-extrabold">{points.toLocaleString()}</p>
             <p className="mt-0.5 text-[12.5px] text-white/55">{ppd} points per $1 spent</p>
@@ -298,7 +298,7 @@ export function RestaurantApp({ manifest }: { manifest: DappManifest }) {
             <p className="mt-3 text-[19px] font-extrabold">Order confirmed</p>
             <p className="mt-1 text-[13px] text-muted">Show this pickup code at the counter.</p>
 
-            <div className="mx-auto mt-4 rounded-2xl bg-[#16204a] px-6 py-4 text-white">
+            <div className="mx-auto mt-4 rounded-2xl bg-ink-panel px-6 py-4 text-white">
               <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-white/55">Pickup code</p>
               <p className="mt-1 font-mono text-[22px] font-extrabold tracking-widest">{confirmation.id}</p>
             </div>

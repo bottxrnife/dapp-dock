@@ -30,7 +30,7 @@ export default function AppRun() {
         <Button href="/catalog" variant="soft">
           ← Back
         </Button>
-        <h1 className="truncate text-xl font-extrabold">{manifest?.name ?? "Spark"}</h1>
+        <h1 className="display truncate text-2xl font-extrabold">{manifest?.name ?? "Spark"}</h1>
       </header>
 
       {status === "loading" && <Card><p className="text-sm text-muted">Loading…</p></Card>}

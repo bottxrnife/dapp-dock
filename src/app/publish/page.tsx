@@ -120,7 +120,7 @@ export default function PublishPage() {
         <Button href="/create" variant="soft">
           ← Back
         </Button>
-        <h1 className="text-xl font-extrabold">Publish</h1>
+        <h1 className="display text-2xl font-extrabold">Publish</h1>
       </header>
 
       <Card>

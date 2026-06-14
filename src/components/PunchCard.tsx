@@ -29,7 +29,7 @@ export function PunchCard({
   const emoji = appEmoji(ens, category);
 
   return (
-    <div className="rounded-[22px] bg-[#16204a] p-[18px] text-white">
+    <div className="rounded-[22px] bg-ink-panel p-[18px] text-white">
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-[11px] font-bold uppercase tracking-[0.08em] text-white/55">{brand}</p>
