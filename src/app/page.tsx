@@ -57,7 +57,7 @@ function SortableSpark({
             onRemove();
           }}
           aria-label={`Remove ${name}`}
-          className="absolute -right-1.5 -top-1.5 flex h-5 w-5 animate-pulse items-center justify-center rounded-full bg-ink text-white shadow-card"
+          className="absolute -right-1.5 -top-1.5 flex h-5 w-5 animate-pulse items-center justify-center rounded-full bg-ink-panel text-white shadow-card"
         >
           <Icon name="close" size={12} className="text-white" />
         </button>

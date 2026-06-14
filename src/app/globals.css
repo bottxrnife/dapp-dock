@@ -38,6 +38,11 @@
   --color-divider: #e6e8ee;
   --color-divider-soft: #f1f3f8;
 
+  /* Theme-aware hero/stat panels (Activity, Profile, etc.) */
+  --color-hero: #e6f5ff;
+  --color-hero-fg: #0b1020;
+  --color-hero-muted: #5b6576;
+
   --shadow-soft: 0 6px 20px rgba(11, 16, 32, 0.06);
   --shadow-card: 0 8px 30px rgba(11, 16, 32, 0.1);
   --shadow-pop: 0 12px 30px rgba(0, 138, 230, 0.32);
@@ -84,6 +89,10 @@
 
   --color-divider: #283143;
   --color-divider-soft: #1f283a;
+
+  --color-hero: #1a2233;
+  --color-hero-fg: #f2f5fa;
+  --color-hero-muted: #9aa6ba;
 
   --shadow-soft: 0 6px 20px rgba(0, 0, 0, 0.4);
   --shadow-card: 0 8px 30px rgba(0, 0, 0, 0.5);

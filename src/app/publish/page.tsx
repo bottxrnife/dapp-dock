@@ -2,10 +2,26 @@
 
 import { Icon } from "@/components/Icon";
 import { Button, Card, Pill } from "@/components/ui";
+import { APP } from "@/lib/config";
 import type { DappManifest, ManifestComponent } from "@/lib/types";
 import { useEffect, useState, type ChangeEvent } from "react";
 
-type PublishResult = { ensName: string; blobId: string | null; walrusUrl: string | null; storageError?: string };
+type EnsProvision = {
+  chain: "mainnet" | "sepolia";
+  chainLabel: string;
+  mode: "on-chain" | "catalog-only";
+  ensName: string;
+  txHashes?: string[];
+  message: string;
+};
+
+type PublishResult = {
+  ensName: string;
+  blobId: string | null;
+  walrusUrl: string | null;
+  storageError?: string;
+  ens?: EnsProvision;
+};
 
 export default function PublishPage() {
   const [draft, setDraft] = useState<DappManifest | null>(null);
@@ -225,7 +241,39 @@ export default function PublishPage() {
                 {result.blobId ? `${result.blobId.slice(0, 14)}…` : "unavailable"}
               </span>
             </li>
+            {result.ens && (
+              <>
+                <li className="flex justify-between gap-2">
+                  <span className="text-success/70">ENS chain</span>
+                  <span className="font-semibold text-success">{result.ens.chainLabel}</span>
+                </li>
+                <li className="flex justify-between gap-2">
+                  <span className="text-success/70">On-chain</span>
+                  <span className="font-semibold text-success">
+                    {result.ens.mode === "on-chain" ? "Minted" : "Catalog only"}
+                  </span>
+                </li>
+              </>
+            )}
           </ul>
+          {result.ens?.message && (
+            <p className="mt-2 text-center text-xs text-success/80">{result.ens.message}</p>
+          )}
+          {result.ens?.txHashes?.map((hash) => (
+            <a
+              key={hash}
+              href={
+                result.ens!.chain === "mainnet"
+                  ? `https://etherscan.io/tx/${hash}`
+                  : `https://sepolia.etherscan.io/tx/${hash}`
+              }
+              target="_blank"
+              rel="noreferrer"
+              className="mt-1 block text-center text-xs text-success/80 underline"
+            >
+              View ENS tx {hash.slice(0, 10)}…
+            </a>
+          ))}
           {result.walrusUrl && (
             <a
               href={result.walrusUrl}
@@ -257,7 +305,9 @@ export default function PublishPage() {
       )}
       {error && <p className="text-center text-xs font-semibold text-warn">{error}</p>}
       <p className="text-center text-xs text-faint">
-        Publishing writes the manifest to Walrus and records {draft.ensName} (ENS subname mint next).
+        {APP.ensChain === "sepolia"
+          ? "Publishing stores the manifest on Walrus and auto-mints an ENS subname on Sepolia testnet — free, no ETH from you."
+          : "Publishing stores the manifest on Walrus and records the ENS name. Mainnet mints cost real ETH — use Sepolia for free testnet names."}
       </p>
     </main>
   );

@@ -49,16 +49,16 @@ export default function ActivityPage() {
       <main className="mx-auto w-full max-w-md px-5 pb-28 pt-6">
         <h1 className="display text-[32px] font-extrabold">Activity</h1>
 
-        <div className="mt-5 rounded-[28px] bg-ink-panel p-6 text-white shadow-card">
+        <div className="mt-5 rounded-[28px] bg-hero p-6 text-hero-fg shadow-card">
           <div className="flex items-center justify-between">
-            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-white/55">Total points</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-hero-muted">Total points</p>
             <span className="inline-flex items-center gap-1 rounded-full bg-brand/15 px-3 py-1 text-[11px] font-bold text-brand"><Icon name="star" solid size={11} /> Rewards</span>
           </div>
           <p className="display mt-2 text-[56px] font-extrabold leading-none">
             {totalPoints.toLocaleString()}
             <span className="ml-2 text-[20px] font-bold text-brand">pts</span>
           </p>
-          <p className="mt-2 text-[13.5px] text-white/60">
+          <p className="mt-2 text-[13.5px] text-hero-muted">
             Earned across {earningSparks} Spark{earningSparks === 1 ? "" : "s"}
           </p>
         </div>

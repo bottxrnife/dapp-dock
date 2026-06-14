@@ -451,8 +451,9 @@ export default function IdentityPage() {
             sub="Give an agent an on-chain identity: ENSIP-26 records under a name you own."
           />
           <p className="mb-3 text-[12px] leading-relaxed text-muted">
-            Your World wallet lives on World Chain, but ENS records live on Ethereum mainnet — so Forge generates the
-            exact calldata for you to sign with a mainnet wallet (the ens-cli pattern). No keys ever touch the server.
+            Your World wallet lives on World Chain, but ENS records live on Ethereum ({APP.ensChain === "sepolia" ? "Sepolia testnet — free" : "mainnet"}).
+            Forge generates the exact calldata for you to sign with an Ethereum wallet (the ens-cli pattern). Spark publish auto-mints subnames when{" "}
+            <code className="text-[11px]">ENS_REGISTRAR_PRIVATE_KEY</code> is set.
           </p>
 
           <form onSubmit={onGenerate} className="flex flex-col gap-3">

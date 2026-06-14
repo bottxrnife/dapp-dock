@@ -1,21 +1,14 @@
 /**
- * ENS reads via viem on Ethereum mainnet (Universal Resolver, full CCIP-Read).
- * Modeled on the agent-native ens-cli (github.com/gskril/ens-cli): read
- * operations execute and return results; write operations live in ensWrite.ts
- * and return unsigned calldata for the caller to sign.
- *
- * Identity for agents:
- *  - ENSIP-26 (Agent Text Records): `agent-context` + `agent-endpoint[<proto>]`.
- *  - ENSIP-25 (AI Agent Registry verification): `agent-registration[<erc7930>][<id>]`.
- * Every function is real (no hard-coded values) and a safe no-op on failure.
+ * ENS reads via viem (Universal Resolver, full CCIP-Read).
+ * Default chain is Sepolia (free testnet); set NEXT_PUBLIC_ENS_CHAIN=mainnet for production.
  */
 import { createPublicClient, http, type Address } from "viem";
-import { mainnet } from "viem/chains";
 import { normalize } from "viem/ens";
+import { ensRpcUrl, ensViemChain } from "./ensChain";
 
 export const ensClient = createPublicClient({
-  chain: mainnet,
-  transport: http(process.env.ETH_RPC_URL || "https://ethereum-rpc.publicnode.com"),
+  chain: ensViemChain(),
+  transport: http(ensRpcUrl()),
 });
 
 function safeNormalize(name: string): string | null {

@@ -75,7 +75,7 @@ export default function ProfilePage() {
         <h1 className="display text-[32px] font-extrabold">Profile</h1>
 
         {/* identity + stats */}
-        <div className="mt-5 rounded-[28px] bg-ink-panel p-6 text-white shadow-card">
+        <div className="mt-5 rounded-[28px] bg-hero p-6 text-hero-fg shadow-card">
           <div className="flex items-center gap-4">
             <div
               className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full shadow-pop"
@@ -87,20 +87,20 @@ export default function ProfilePage() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="display truncate text-[22px] font-extrabold leading-tight">@{user?.username ?? "human"}</p>
-              <p className="truncate text-[12.5px] text-white/55">
+              <p className="truncate text-[12.5px] text-hero-muted">
                 {user?.guest ? "Preview session" : user?.address}
               </p>
             </div>
           </div>
 
           <div className="mt-5 grid grid-cols-2 gap-3">
-            <div className="rounded-2xl bg-white/10 p-4">
+            <div className="rounded-2xl bg-hero-fg/10 p-4">
               <p className="display text-[30px] font-extrabold leading-none">{points.toLocaleString()}</p>
-              <p className="mt-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white/55">Points</p>
+              <p className="mt-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-hero-muted">Points</p>
             </div>
-            <div className="rounded-2xl bg-white/10 p-4">
+            <div className="rounded-2xl bg-hero-fg/10 p-4">
               <p className="display text-[30px] font-extrabold leading-none">{passes}</p>
-              <p className="mt-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-white/55">Passes</p>
+              <p className="mt-1.5 text-[11px] font-bold uppercase tracking-[0.12em] text-hero-muted">Passes</p>
             </div>
           </div>
         </div>

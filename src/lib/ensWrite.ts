@@ -12,10 +12,9 @@
 import { encodeFunctionData, type Address } from "viem";
 import { labelhash, namehash } from "viem/ens";
 import { getResolver } from "./ens";
+import { ENS_PUBLIC_RESOLVER, ENS_REGISTRY, ensChainId, ensChainName } from "./ensChain";
 
-// Canonical mainnet ENS registry + a public resolver fallback.
-const ENS_REGISTRY = "0x00000000000C2E074eC69A0dFb2997BA6C7d2e1e" as Address;
-const PUBLIC_RESOLVER = "0x231b0Ee14048e9dCcD1d247744d114a4EB5E8E63" as Address;
+const PUBLIC_RESOLVER = ENS_PUBLIC_RESOLVER[ensChainName()];
 
 const setTextAbi = [
   { name: "setText", type: "function", stateMutability: "nonpayable", inputs: [{ name: "node", type: "bytes32" }, { name: "key", type: "string" }, { name: "value", type: "string" }], outputs: [] },
@@ -30,7 +29,7 @@ const setSubnodeRecordAbi = [
   { name: "setSubnodeRecord", type: "function", stateMutability: "nonpayable", inputs: [{ name: "node", type: "bytes32" }, { name: "label", type: "bytes32" }, { name: "owner", type: "address" }, { name: "resolver", type: "address" }, { name: "ttl", type: "uint64" }], outputs: [] },
 ] as const;
 
-export type Calldata = { to: Address; data: `0x${string}`; value: "0x0"; summary: string; chainId: 1 };
+export type Calldata = { to: Address; data: `0x${string}`; value: "0x0"; summary: string; chainId: number };
 
 async function resolverFor(name: string): Promise<Address> {
   return ((await getResolver(name)) as Address | null) ?? PUBLIC_RESOLVER;
@@ -40,14 +39,14 @@ async function resolverFor(name: string): Promise<Address> {
 export async function setTextCalldata(name: string, key: string, value: string): Promise<Calldata> {
   const to = await resolverFor(name);
   const data = encodeFunctionData({ abi: setTextAbi, functionName: "setText", args: [namehash(name), key, value] });
-  return { to, data, value: "0x0", summary: `Set "${key}" on ${name}`, chainId: 1 };
+  return { to, data, value: "0x0", summary: `Set "${key}" on ${name}`, chainId: ensChainId() };
 }
 
 /** Set an address record. */
 export async function setAddrCalldata(name: string, address: string): Promise<Calldata> {
   const to = await resolverFor(name);
   const data = encodeFunctionData({ abi: setAddrAbi, functionName: "setAddr", args: [namehash(name), address as Address] });
-  return { to, data, value: "0x0", summary: `Set address on ${name}`, chainId: 1 };
+  return { to, data, value: "0x0", summary: `Set address on ${name}`, chainId: ensChainId() };
 }
 
 /** ENSIP-26: set multiple agent records in one multicall (agent-context + endpoints + registration). */
@@ -64,7 +63,7 @@ export async function setAgentRecordsCalldata(
     calls.length === 1
       ? calls[0]
       : encodeFunctionData({ abi: multicallAbi, functionName: "multicall", args: [calls] });
-  return { to, data, value: "0x0", summary: `Set ${calls.length} agent record${calls.length === 1 ? "" : "s"} on ${name}`, chainId: 1 };
+  return { to, data, value: "0x0", summary: `Set ${calls.length} agent record${calls.length === 1 ? "" : "s"} on ${name}`, chainId: ensChainId() };
 }
 
 /** Build the ENSIP-26 record list for naming an agent (skips empty fields). */
@@ -97,5 +96,5 @@ export async function setSubnameCalldata(
     functionName: "setSubnodeRecord",
     args: [namehash(parent), labelhash(label), owner as Address, res, BigInt(0)],
   });
-  return { to: ENS_REGISTRY, data, value: "0x0", summary: `Create ${label}.${parent}`, chainId: 1 };
+  return { to: ENS_REGISTRY as Address, data, value: "0x0", summary: `Create ${label}.${parent}`, chainId: ensChainId() };
 }
